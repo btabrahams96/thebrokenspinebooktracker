@@ -1,0 +1,7 @@
+// Cloudflare Pages config (frontend).
+// The Worker (Phase 03) gets its own wrangler.jsonc inside `worker/`.
+{
+  "name": "the-broken-spine",
+  "compatibility_date": "2026-04-01",
+  "pages_build_output_dir": "dist"
+}

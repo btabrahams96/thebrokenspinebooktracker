@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Stacks — Personal Library Tracker / Spec</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F2E8D5;
+    --cream-light: #FAF3E3;
+    --cream-deep: #E8DCC4;
+    --burgundy: #6B1F2E;
+    --burgundy-deep: #4F1622;
+    --burgundy-light: #8B2E3F;
+    --forest: #2D4A3E;
+    --forest-deep: #1F3329;
+    --forest-light: #3F6253;
+    --ink: #1A1410;
+    --sepia: #8B7456;
+    --sepia-light: #B5A082;
+    --line: rgba(26, 20, 16, 0.12);
+    --line-soft: rgba(26, 20, 16, 0.06);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    line-height: 1.6;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(107, 31, 46, 0.04), transparent 40%),
+      radial-gradient(circle at 80% 80%, rgba(45, 74, 62, 0.04), transparent 40%);
+  }
+  .display {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 144, 'SOFT' 100;
+    letter-spacing: -0.02em;
+  }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* nav */
+  nav.top {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(242, 232, 213, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+    padding: 1rem clamp(1rem, 4vw, 3rem);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  nav.top .brand {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 144, 'SOFT' 100;
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: var(--burgundy);
+    letter-spacing: -0.02em;
+  }
+  nav.top .brand .dot { color: var(--forest); }
+  nav.top ul {
+    display: flex; gap: 1.75rem; list-style: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+  nav.top a {
+    color: var(--ink); text-decoration: none;
+    opacity: 0.7; transition: opacity 0.2s;
+  }
+  nav.top a:hover { opacity: 1; color: var(--burgundy); }
+  nav.top .menu-btn {
+    display: none;
+    background: var(--burgundy);
+    color: var(--cream);
+    border: none;
+    padding: 0.5rem 0.9rem;
+    border-radius: 4px;
+    font-family: inherit;
+    font-weight: 500;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+  @media (max-width: 768px) {
+    nav.top ul { display: none; }
+    nav.top .menu-btn { display: block; }
+  }
+
+  /* hero */
+  .hero {
+    padding: clamp(3rem, 10vw, 7rem) clamp(1rem, 4vw, 3rem) clamp(2rem, 6vw, 4rem);
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .hero .tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--burgundy);
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+  }
+  .hero h1 {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 144, 'SOFT' 100;
+    font-weight: 400;
+    font-size: clamp(2.5rem, 7vw, 5.5rem);
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+    color: var(--ink);
+    margin-bottom: 1.5rem;
+  }
+  .hero h1 em {
+    font-style: italic;
+    font-weight: 300;
+    color: var(--burgundy);
+  }
+  .hero .lede {
+    font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+    color: var(--sepia);
+    max-width: 620px;
+    line-height: 1.55;
+  }
+  .hero .meta {
+    display: flex; gap: 2rem; flex-wrap: wrap;
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--line);
+    font-size: 0.85rem;
+  }
+  .hero .meta div { display: flex; flex-direction: column; gap: 0.25rem; }
+  .hero .meta .label {
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--sepia);
+    font-weight: 600;
+  }
+  .hero .meta .val { color: var(--ink); font-weight: 500; }
+
+  /* sections */
+  section {
+    padding: clamp(2.5rem, 6vw, 5rem) clamp(1rem, 4vw, 3rem);
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .section-num {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 144;
+    font-weight: 300;
+    font-style: italic;
+    color: var(--burgundy);
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  h2 {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 144, 'SOFT' 100;
+    font-weight: 500;
+    font-size: clamp(1.8rem, 4vw, 2.75rem);
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    margin-bottom: 1.5rem;
+  }
+  h2 em { font-style: italic; font-weight: 300; color: var(--burgundy); }
+  h3 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 1.3rem;
+    color: var(--ink);
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  p { margin-bottom: 1rem; max-width: 680px; }
+  p strong { color: var(--burgundy); font-weight: 600; }
+  a { color: var(--burgundy); }
+
+  /* card grid */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+  .card {
+    background: var(--cream-light);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 1.75rem;
+    position: relative;
+  }
+  .card.dark {
+    background: var(--burgundy);
+    color: var(--cream-light);
+    border-color: var(--burgundy-deep);
+  }
+  .card.forest {
+    background: var(--forest);
+    color: var(--cream-light);
+    border-color: var(--forest-deep);
+  }
+  .card.dark h3, .card.forest h3 { color: var(--cream-light); }
+  .card .icon {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    color: var(--burgundy);
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+    display: block;
+    letter-spacing: 0.05em;
+  }
+  .card.dark .icon, .card.forest .icon { color: var(--cream-deep); opacity: 0.7; }
+  .card p { font-size: 0.92rem; color: var(--sepia); margin-bottom: 0; }
+  .card.dark p, .card.forest p { color: var(--cream-light); opacity: 0.85; }
+
+  /* code blocks */
+  pre {
+    background: var(--ink);
+    color: var(--cream-light);
+    padding: 1.5rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    margin: 1.5rem 0;
+    border: 1px solid var(--ink);
+  }
+  pre .c { color: var(--sepia-light); font-style: italic; }
+  pre .k { color: #E8B07C; }
+  pre .s { color: #B5C99A; }
+  pre .n { color: #D4A5B0; }
+  code.inline {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--cream-deep);
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.88em;
+    color: var(--burgundy);
+  }
+
+  /* table */
+  table.spec {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1.5rem;
+    font-size: 0.92rem;
+  }
+  table.spec th {
+    text-align: left;
+    padding: 0.85rem 1rem;
+    background: var(--burgundy);
+    color: var(--cream-light);
+    font-weight: 600;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  table.spec td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  table.spec tr:nth-child(even) td { background: var(--cream-light); }
+  table.spec td.field { font-family: 'JetBrains Mono', monospace; color: var(--burgundy); font-size: 0.85rem; }
+  table.spec td.type { font-family: 'JetBrains Mono', monospace; color: var(--forest); font-size: 0.82rem; }
+
+  /* phone mockups */
+  .mockups {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 2rem;
+    margin-top: 2.5rem;
+    align-items: start;
+  }
+  .phone {
+    background: var(--cream-light);
+    border-radius: 28px;
+    padding: 1rem;
+    border: 8px solid var(--ink);
+    box-shadow: 0 20px 50px rgba(26, 20, 16, 0.15);
+    aspect-ratio: 9 / 17;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    font-size: 0.7rem;
+  }
+  .phone .top-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0 0.4rem 0.6rem;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .phone .top-bar .title {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    color: var(--burgundy);
+    font-size: 0.85rem;
+  }
+  .phone .top-bar .count {
+    color: var(--sepia);
+    font-size: 0.65rem;
+  }
+  .phone .filters {
+    display: flex; gap: 0.3rem;
+    padding: 0.6rem 0.4rem;
+    flex-wrap: wrap;
+  }
+  .phone .chip {
+    font-size: 0.55rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 999px;
+    background: var(--cream-deep);
+    color: var(--ink);
+    border: 1px solid var(--line);
+  }
+  .phone .chip.active { background: var(--burgundy); color: var(--cream-light); border-color: var(--burgundy); }
+  .phone .chip.green { background: var(--forest); color: var(--cream-light); border-color: var(--forest); }
+  .phone .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+    padding: 0.4rem;
+    flex: 1;
+    overflow: hidden;
+  }
+  .phone .item {
+    background: linear-gradient(135deg, #6B1F2E 0%, #4F1622 100%);
+    border-radius: 4px;
+    aspect-ratio: 2/3;
+    position: relative;
+    overflow: hidden;
+  }
+  .phone .item:nth-child(2) { background: linear-gradient(135deg, #2D4A3E 0%, #1F3329 100%); }
+  .phone .item:nth-child(3) { background: linear-gradient(135deg, #8B7456 0%, #5C4A33 100%); }
+  .phone .item:nth-child(4) { background: linear-gradient(135deg, #6B1F2E 0%, #2D4A3E 100%); }
+  .phone .item:nth-child(5) { background: linear-gradient(135deg, #1A1410 0%, #4F1622 100%); }
+  .phone .item:nth-child(6) { background: linear-gradient(135deg, #2D4A3E 0%, #8B7456 100%); }
+  .phone .item .dot {
+    position: absolute; top: 4px; right: 4px;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--cream-light);
+  }
+  .phone .item .label {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(26, 20, 16, 0.7);
+    color: var(--cream-light);
+    font-size: 0.5rem;
+    padding: 0.2rem 0.3rem;
+    line-height: 1.2;
+  }
+  .phone .nav-bar {
+    display: flex; justify-content: space-around;
+    padding: 0.6rem 0.3rem 0.3rem;
+    border-top: 1px solid var(--line-soft);
+    background: var(--cream);
+  }
+  .phone .nav-bar .navitem {
+    font-size: 0.55rem;
+    color: var(--sepia);
+    text-align: center;
+  }
+  .phone .nav-bar .navitem.active { color: var(--burgundy); font-weight: 600; }
+  .phone .nav-bar .navitem .ico {
+    display: block;
+    width: 18px; height: 18px;
+    margin: 0 auto 0.15rem;
+    border-radius: 3px;
+    background: var(--sepia-light);
+    opacity: 0.5;
+  }
+  .phone .nav-bar .navitem.active .ico { background: var(--burgundy); opacity: 1; }
+
+  /* Detail mockup */
+  .phone.detail .cover {
+    background: linear-gradient(135deg, #6B1F2E 0%, #4F1622 100%);
+    aspect-ratio: 2/3;
+    margin: 0.4rem auto;
+    width: 50%;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  .phone.detail .meta {
+    text-align: center;
+    padding: 0.4rem;
+  }
+  .phone.detail .meta .t {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    color: var(--ink);
+    font-size: 0.75rem;
+    margin-bottom: 0.1rem;
+  }
+  .phone.detail .meta .a {
+    font-size: 0.6rem;
+    color: var(--sepia);
+    font-style: italic;
+  }
+  .phone.detail .actions {
+    display: flex; gap: 0.3rem;
+    padding: 0.5rem 0.4rem;
+  }
+  .phone.detail .actions .btn {
+    flex: 1;
+    text-align: center;
+    padding: 0.4rem;
+    border-radius: 4px;
+    font-size: 0.55rem;
+    font-weight: 600;
+  }
+  .phone.detail .actions .btn.p { background: var(--burgundy); color: var(--cream-light); }
+  .phone.detail .actions .btn.s { background: var(--cream-deep); color: var(--ink); border: 1px solid var(--line); }
+  .phone.detail .stats {
+    display: flex; justify-content: space-around;
+    padding: 0.6rem 0.4rem;
+    border-top: 1px solid var(--line-soft);
+    border-bottom: 1px solid var(--line-soft);
+    font-size: 0.55rem;
+    color: var(--sepia);
+  }
+  .phone.detail .stats span { color: var(--ink); font-weight: 600; }
+
+  /* Scan mockup */
+  .phone.scan .viewfinder {
+    flex: 1;
+    margin: 0.4rem;
+    background: var(--ink);
+    border-radius: 6px;
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .phone.scan .viewfinder::before {
+    content: '';
+    position: absolute;
+    inset: 20% 15%;
+    border: 2px solid var(--burgundy-light);
+    border-radius: 4px;
+  }
+  .phone.scan .viewfinder::after {
+    content: '';
+    position: absolute;
+    left: 18%; right: 18%;
+    height: 2px;
+    background: var(--burgundy-light);
+    box-shadow: 0 0 8px var(--burgundy-light);
+    animation: scan 2s ease-in-out infinite;
+  }
+  @keyframes scan {
+    0%, 100% { top: 22%; }
+    50% { top: 75%; }
+  }
+  .phone.scan .scan-label {
+    color: var(--cream-light);
+    font-size: 0.6rem;
+    text-align: center;
+    padding: 0.4rem;
+    font-style: italic;
+  }
+  .phone.scan .or {
+    text-align: center;
+    color: var(--sepia);
+    font-size: 0.55rem;
+    padding: 0.3rem;
+  }
+  .phone.scan .search {
+    margin: 0.3rem 0.4rem 0.6rem;
+    background: var(--cream-deep);
+    border-radius: 4px;
+    padding: 0.5rem;
+    font-size: 0.6rem;
+    color: var(--sepia);
+  }
+
+  .mockup-caption {
+    text-align: center;
+    margin-top: 0.85rem;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    color: var(--sepia);
+    font-size: 0.85rem;
+  }
+
+  /* color tokens */
+  .swatches {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+  .swatch {
+    border-radius: 6px;
+    padding: 1.25rem;
+    border: 1px solid var(--line);
+    aspect-ratio: 1.5;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .swatch .name {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+  .swatch .hex {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    opacity: 0.75;
+    letter-spacing: 0.05em;
+  }
+  .s-cream { background: var(--cream); color: var(--ink); }
+  .s-burgundy { background: var(--burgundy); color: var(--cream-light); }
+  .s-forest { background: var(--forest); color: var(--cream-light); }
+  .s-ink { background: var(--ink); color: var(--cream-light); }
+  .s-sepia { background: var(--sepia); color: var(--cream-light); }
+  .s-creamlight { background: var(--cream-light); color: var(--ink); }
+
+  /* type specimens */
+  .type-spec {
+    margin-top: 2rem;
+    border-top: 1px solid var(--line);
+    padding-top: 2rem;
+  }
+  .type-spec .row { padding: 1.25rem 0; border-bottom: 1px solid var(--line-soft); }
+  .type-spec .label-row {
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--sepia);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+  .type-display {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 144, 'SOFT' 100;
+    font-weight: 400;
+    font-size: 2.5rem;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  .type-italic {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 1.5rem;
+    color: var(--burgundy);
+  }
+  .type-body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1rem;
+    color: var(--ink);
+  }
+  .type-mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    color: var(--forest);
+  }
+
+  /* phases */
+  .phase {
+    border-left: 2px solid var(--burgundy);
+    padding: 0.5rem 0 1.5rem 1.5rem;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+  .phase::before {
+    content: '';
+    position: absolute;
+    left: -7px; top: 0.6rem;
+    width: 12px; height: 12px;
+    background: var(--burgundy);
+    border-radius: 50%;
+  }
+  .phase .num {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    color: var(--burgundy);
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+    display: block;
+    font-weight: 500;
+  }
+  .phase h3 { margin-bottom: 0.5rem; }
+  .phase ul {
+    list-style: none;
+    margin-top: 0.75rem;
+    font-size: 0.92rem;
+  }
+  .phase ul li {
+    padding: 0.3rem 0;
+    color: var(--sepia);
+    padding-left: 1.25rem;
+    position: relative;
+  }
+  .phase ul li::before {
+    content: '·';
+    position: absolute;
+    left: 0; top: 0;
+    color: var(--forest);
+    font-weight: 700;
+    font-size: 1.2rem;
+  }
+  .phase ul li strong { color: var(--ink); font-weight: 500; }
+
+  /* footer */
+  footer {
+    background: var(--ink);
+    color: var(--cream-deep);
+    padding: 4rem clamp(1rem, 4vw, 3rem) 3rem;
+    margin-top: 4rem;
+    text-align: center;
+  }
+  footer .display {
+    color: var(--cream-light);
+    font-size: 1.5rem;
+    font-style: italic;
+    font-weight: 300;
+    margin-bottom: 0.5rem;
+  }
+  footer .small {
+    color: var(--sepia-light);
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* drawer for mobile */
+  .drawer {
+    display: none;
+    position: fixed;
+    top: 0; right: 0; bottom: 0;
+    width: 75%; max-width: 320px;
+    background: var(--cream-light);
+    z-index: 200;
+    padding: 5rem 2rem 2rem;
+    box-shadow: -4px 0 30px rgba(0,0,0,0.1);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+  }
+  .drawer.open { transform: translateX(0); display: block; }
+  .drawer ul { list-style: none; }
+  .drawer ul li { padding: 0.85rem 0; border-bottom: 1px solid var(--line-soft); }
+  .drawer ul li a {
+    color: var(--ink);
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+  }
+  .drawer .close {
+    position: absolute;
+    top: 1.5rem; right: 1.5rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--burgundy);
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <div class="brand">Stacks<span class="dot">.</span></div>
+  <ul>
+    <li><a href="#plan">Plan</a></li>
+    <li><a href="#stack">Stack</a></li>
+    <li><a href="#data">Data</a></li>
+    <li><a href="#screens">Screens</a></li>
+    <li><a href="#design">Design</a></li>
+    <li><a href="#phases">Build</a></li>
+    <li><a href="#claude">Hand-off</a></li>
+  </ul>
+  <button class="menu-btn" onclick="document.getElementById('drawer').classList.add('open')">Menu</button>
+</nav>
+
+<div class="drawer" id="drawer">
+  <button class="close" onclick="document.getElementById('drawer').classList.remove('open')">×</button>
+  <ul>
+    <li><a href="#plan" onclick="document.getElementById('drawer').classList.remove('open')">The Plan</a></li>
+    <li><a href="#stack" onclick="document.getElementById('drawer').classList.remove('open')">Stack</a></li>
+    <li><a href="#data" onclick="document.getElementById('drawer').classList.remove('open')">Data Model</a></li>
+    <li><a href="#apis" onclick="document.getElementById('drawer').classList.remove('open')">API Strategy</a></li>
+    <li><a href="#screens" onclick="document.getElementById('drawer').classList.remove('open')">Screens</a></li>
+    <li><a href="#design" onclick="document.getElementById('drawer').classList.remove('open')">Design Tokens</a></li>
+    <li><a href="#phases" onclick="document.getElementById('drawer').classList.remove('open')">Build Phases</a></li>
+    <li><a href="#claude" onclick="document.getElementById('drawer').classList.remove('open')">Claude Code Hand-off</a></li>
+  </ul>
+</div>
+
+<div class="hero">
+  <div class="tag">Personal Project · Spec v1.0</div>
+  <h1>A quiet place for<br/>your <em>books, manga,</em><br/>and comics.</h1>
+  <p class="lede">Stacks is a personal PWA for tracking what you own, what you've read, and what you want next. Scan a barcode, search a title, done. No social feed, no algorithm — just your library.</p>
+  <div class="meta">
+    <div><span class="label">Project</span><span class="val">Stacks</span></div>
+    <div><span class="label">Owner</span><span class="val">Kyle Roebuck</span></div>
+    <div><span class="label">Type</span><span class="val">Personal PWA</span></div>
+    <div><span class="label">Build Time</span><span class="val">~1 weekend</span></div>
+    <div><span class="label">Cost</span><span class="val">$0 / month</span></div>
+  </div>
+</div>
+
+<section id="plan">
+  <div class="section-num">§ 01 — The Plan</div>
+  <h2>What we're <em>actually</em> building.</h2>
+  <p>One PWA, installable on your phone, that does five things well: <strong>scan a barcode</strong>, <strong>search by title or ISBN</strong>, <strong>save to library or wishlist</strong>, <strong>browse what you own</strong>, and <strong>see what you've read</strong>. Books, manga, and comics all live in the same shelf — filterable by type when you want, mixed when you don't.</p>
+  <p>No accounts to manage (it's just you). No social features. No reading goals you'll resent in March. Just a clean, fast catalog of your stuff.</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <span class="icon">— what it does</span>
+      <h3>Scan or Search</h3>
+      <p>Phone camera reads the barcode on the back of any book or graphic novel. Or type a title. Or paste an ISBN.</p>
+    </div>
+    <div class="card">
+      <span class="icon">— what it stores</span>
+      <h3>Library + Wishlist</h3>
+      <p>Two lists. Owned things vs. things you want. Move between them with one tap when something arrives.</p>
+    </div>
+    <div class="card forest">
+      <span class="icon">— what it tracks</span>
+      <h3>Status, Rating, Notes</h3>
+      <p>Reading, Read, DNF. Star rating. Free-text notes. Volume number for series. That's it.</p>
+    </div>
+    <div class="card">
+      <span class="icon">— what it doesn't</span>
+      <h3>No Friends Feed</h3>
+      <p>Not Goodreads. Not StoryGraph. Not trying to be social. The point is to be <em>fast</em> and <em>yours</em>.</p>
+    </div>
+  </div>
+</section>
+
+<section id="stack">
+  <div class="section-num">§ 02 — Stack</div>
+  <h2>Built on what <em>already works</em> for you.</h2>
+  <p>This stack is chosen because you already run the same pieces for B&amp;B's marketing site, the dashboard, and the admin CMS. Nothing new to learn, nothing new to pay for.</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <span class="icon">— frontend</span>
+      <h3>Vite + React + TypeScript</h3>
+      <p>Fast dev server, instant HMR, type safety. PWA via vite-plugin-pwa. Tailwind for styling with our custom tokens.</p>
+    </div>
+    <div class="card">
+      <span class="icon">— hosting</span>
+      <h3>Cloudflare Pages</h3>
+      <p>Same deploy pattern as the B&amp;B site. Push to GitHub, auto-deploy. Free tier handles this comfortably.</p>
+    </div>
+    <div class="card forest">
+      <span class="icon">— api / db</span>
+      <h3>Cloudflare Worker + D1</h3>
+      <p>One Worker exposes a tiny API for save/list/update. D1 (SQLite at the edge) holds the data. Free tier is plenty.</p>
+    </div>
+    <div class="card">
+      <span class="icon">— scanning</span>
+      <h3>@zxing/browser</h3>
+      <p>Pure JS barcode scanner. Reads ISBN-13 / EAN-13 from the phone camera. No native app needed.</p>
+    </div>
+    <div class="card">
+      <span class="icon">— auth</span>
+      <h3>PIN cookie</h3>
+      <p>It's just you. Set a 6-digit PIN in an env var, exchange for an HttpOnly cookie on first load. Done.</p>
+    </div>
+    <div class="card dark">
+      <span class="icon">— offline</span>
+      <h3>Service Worker</h3>
+      <p>Cached shell + last-fetched library means scan-and-save still queues offline. Syncs when you're back on wifi.</p>
+    </div>
+  </div>
+</section>
+
+<section id="data">
+  <div class="section-num">§ 03 — Data Model</div>
+  <h2>One table is <em>genuinely enough</em>.</h2>
+  <p>You're not running a bookstore. A single <code class="inline">items</code> table covers books, manga, comics, library, and wishlist. Status and type fields do all the differentiation.</p>
+
+  <table class="spec">
+    <thead>
+      <tr><th>Field</th><th>Type</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="field">id</td><td class="type">TEXT PRIMARY KEY</td><td>UUID, generated client-side</td></tr>
+      <tr><td class="field">title</td><td class="type">TEXT NOT NULL</td><td>From metadata or manual entry</td></tr>
+      <tr><td class="field">creator</td><td class="type">TEXT</td><td>Author / mangaka / writer + artist</td></tr>
+      <tr><td class="field">cover_url</td><td class="type">TEXT</td><td>External image URL from source API</td></tr>
+      <tr><td class="field">type</td><td class="type">TEXT</td><td>'book' | 'manga' | 'comic'</td></tr>
+      <tr><td class="field">isbn</td><td class="type">TEXT</td><td>13-digit ISBN if available</td></tr>
+      <tr><td class="field">external_id</td><td class="type">TEXT</td><td>Google Books vol id / AniList id / ComicVine id</td></tr>
+      <tr><td class="field">source</td><td class="type">TEXT</td><td>'google_books' | 'anilist' | 'comicvine' | 'manual'</td></tr>
+      <tr><td class="field">status</td><td class="type">TEXT NOT NULL</td><td>'wishlist' | 'owned' | 'reading' | 'read' | 'dnf'</td></tr>
+      <tr><td class="field">rating</td><td class="type">INTEGER</td><td>1–5, nullable</td></tr>
+      <tr><td class="field">notes</td><td class="type">TEXT</td><td>Free-text, nullable</td></tr>
+      <tr><td class="field">series</td><td class="type">TEXT</td><td>For manga/comics: series name</td></tr>
+      <tr><td class="field">volume</td><td class="type">INTEGER</td><td>Volume / issue number, nullable</td></tr>
+      <tr><td class="field">date_added</td><td class="type">TEXT</td><td>ISO timestamp</td></tr>
+      <tr><td class="field">date_finished</td><td class="type">TEXT</td><td>ISO timestamp, nullable</td></tr>
+    </tbody>
+  </table>
+
+  <h3 style="margin-top: 2.5rem;">D1 schema</h3>
+<pre><span class="k">CREATE TABLE</span> items (
+  id            <span class="k">TEXT PRIMARY KEY</span>,
+  title         <span class="k">TEXT NOT NULL</span>,
+  creator       <span class="k">TEXT</span>,
+  cover_url     <span class="k">TEXT</span>,
+  type          <span class="k">TEXT NOT NULL CHECK</span>(type <span class="k">IN</span> (<span class="s">'book'</span>,<span class="s">'manga'</span>,<span class="s">'comic'</span>)),
+  isbn          <span class="k">TEXT</span>,
+  external_id   <span class="k">TEXT</span>,
+  source        <span class="k">TEXT</span>,
+  status        <span class="k">TEXT NOT NULL CHECK</span>(status <span class="k">IN</span> (<span class="s">'wishlist'</span>,<span class="s">'owned'</span>,<span class="s">'reading'</span>,<span class="s">'read'</span>,<span class="s">'dnf'</span>)),
+  rating        <span class="k">INTEGER CHECK</span>(rating <span class="k">BETWEEN</span> 1 <span class="k">AND</span> 5),
+  notes         <span class="k">TEXT</span>,
+  series        <span class="k">TEXT</span>,
+  volume        <span class="k">INTEGER</span>,
+  date_added    <span class="k">TEXT NOT NULL DEFAULT</span> (<span class="n">datetime</span>(<span class="s">'now'</span>)),
+  date_finished <span class="k">TEXT</span>
+);
+
+<span class="k">CREATE INDEX</span> idx_items_status <span class="k">ON</span> items(status);
+<span class="k">CREATE INDEX</span> idx_items_type   <span class="k">ON</span> items(type);
+<span class="k">CREATE INDEX</span> idx_items_series <span class="k">ON</span> items(series);
+</pre>
+</section>
+
+<section id="apis">
+  <div class="section-num">§ 04 — API Strategy</div>
+  <h2>Three sources, <em>one fallback chain</em>.</h2>
+  <p>This is the part that needs care. ISBN lookups are great for books, decent for graphic novels, and unreliable for manga volumes. Strategy: scan or search hits the right API based on the user's chosen type. If the user just hits scan without choosing a type, run the chain.</p>
+
+  <h3 style="margin-top: 2rem;">The chain</h3>
+<pre><span class="c">// ScanFlow.ts — pseudocode</span>
+<span class="k">async function</span> lookup(isbn) {
+  <span class="c">// 1. Try Google Books — fastest, no key, great for books</span>
+  <span class="k">const</span> gb = <span class="k">await</span> googleBooks(isbn);
+  <span class="k">if</span> (gb &amp;&amp; gb.title) <span class="k">return</span> { ...gb, source: <span class="s">'google_books'</span> };
+
+  <span class="c">// 2. Open Library — better coverage for older &amp; international titles</span>
+  <span class="k">const</span> ol = <span class="k">await</span> openLibrary(isbn);
+  <span class="k">if</span> (ol &amp;&amp; ol.title) <span class="k">return</span> { ...ol, source: <span class="s">'open_library'</span> };
+
+  <span class="c">// 3. AniList — manga only, search by title from OCR/typed</span>
+  <span class="c">// (only if user marked type === 'manga')</span>
+
+  <span class="c">// 4. Manual entry fallback</span>
+  <span class="k">return</span> { needsManualEntry: <span class="k">true</span>, isbn };
+}
+</pre>
+
+  <div class="card-grid">
+    <div class="card">
+      <span class="icon">— primary, books</span>
+      <h3>Google Books</h3>
+      <p><code class="inline">googleapis.com/books/v1/volumes?q=isbn:{isbn}</code><br/>Free, no key, fast. Returns title, authors, cover, description, page count.</p>
+    </div>
+    <div class="card">
+      <span class="icon">— fallback, books</span>
+      <h3>Open Library</h3>
+      <p><code class="inline">openlibrary.org/api/books?bibkeys=ISBN:{isbn}</code><br/>Free, no key. Better for older and out-of-print titles.</p>
+    </div>
+    <div class="card forest">
+      <span class="icon">— manga</span>
+      <h3>AniList GraphQL</h3>
+      <p><code class="inline">graphql.anilist.co</code> — query by title. Free, no key. Excellent for manga series, volume numbers, cover art.</p>
+    </div>
+    <div class="card">
+      <span class="icon">— comics</span>
+      <h3>ComicVine</h3>
+      <p><code class="inline">comicvine.gamespot.com/api</code><br/>Free with API key. Best source for single issues, trade paperbacks, omnibuses.</p>
+    </div>
+  </div>
+
+  <p style="margin-top: 2rem;"><strong>Edge cases handled by manual entry:</strong> imported manga without a US ISBN, mini-comics, zines, signed copies you want to log specifically. The "Add Manually" button is always one tap away on the scan screen.</p>
+</section>
+
+<section id="screens">
+  <div class="section-num">§ 05 — Screens</div>
+  <h2>Five views, <em>nothing more</em>.</h2>
+  <p>Bottom nav stays the same on every screen: <strong>Library · Wishlist · Add (+) · Stats · Settings</strong>. The plus button is centered and slightly larger — it's the most common action.</p>
+
+  <div class="mockups">
+    <div>
+      <div class="phone">
+        <div class="top-bar">
+          <span class="title">Library</span>
+          <span class="count">142 items</span>
+        </div>
+        <div class="filters">
+          <span class="chip active">All</span>
+          <span class="chip">Books</span>
+          <span class="chip">Manga</span>
+          <span class="chip">Comics</span>
+          <span class="chip green">Reading</span>
+        </div>
+        <div class="grid">
+          <div class="item"><span class="dot"></span><span class="label">The Overstory</span></div>
+          <div class="item"><span class="label">Berserk Vol. 1</span></div>
+          <div class="item"><span class="label">Saga Book One</span></div>
+          <div class="item"><span class="label">Pachinko</span></div>
+          <div class="item"><span class="dot"></span><span class="label">Vagabond V.3</span></div>
+          <div class="item"><span class="label">Dune</span></div>
+        </div>
+        <div class="nav-bar">
+          <div class="navitem active"><span class="ico"></span>Library</div>
+          <div class="navitem"><span class="ico"></span>Wishlist</div>
+          <div class="navitem"><span class="ico"></span>Add</div>
+          <div class="navitem"><span class="ico"></span>Stats</div>
+        </div>
+      </div>
+      <div class="mockup-caption">Library — grid of covers, filterable</div>
+    </div>
+
+    <div>
+      <div class="phone scan">
+        <div class="top-bar">
+          <span class="title">Add</span>
+          <span class="count">scan or search</span>
+        </div>
+        <div class="viewfinder"></div>
+        <div class="scan-label" style="color: var(--cream-light); padding-top: 0.4rem;">Aim at the barcode</div>
+        <div class="or">— or —</div>
+        <div class="search">⌕  Search by title or ISBN</div>
+        <div class="nav-bar">
+          <div class="navitem"><span class="ico"></span>Library</div>
+          <div class="navitem"><span class="ico"></span>Wishlist</div>
+          <div class="navitem active"><span class="ico"></span>Add</div>
+          <div class="navitem"><span class="ico"></span>Stats</div>
+        </div>
+      </div>
+      <div class="mockup-caption">Add — camera-first, search fallback</div>
+    </div>
+
+    <div>
+      <div class="phone detail">
+        <div class="top-bar">
+          <span class="title" style="font-size: 0.7rem;">← Back</span>
+          <span class="count">⋯</span>
+        </div>
+        <div class="cover"></div>
+        <div class="meta">
+          <div class="t">The Overstory</div>
+          <div class="a">Richard Powers</div>
+        </div>
+        <div class="actions">
+          <div class="btn p">Reading</div>
+          <div class="btn s">★★★★☆</div>
+        </div>
+        <div class="stats">
+          <div>Type<br/><span>Book</span></div>
+          <div>Added<br/><span>Apr 12</span></div>
+          <div>Pages<br/><span>512</span></div>
+        </div>
+        <div style="padding: 0.5rem 0.4rem; font-size: 0.55rem; color: var(--sepia); flex: 1;">
+          <em>"Pulitzer winner. Slow start, pays off massively."</em>
+        </div>
+        <div class="nav-bar">
+          <div class="navitem active"><span class="ico"></span>Library</div>
+          <div class="navitem"><span class="ico"></span>Wishlist</div>
+          <div class="navitem"><span class="ico"></span>Add</div>
+          <div class="navitem"><span class="ico"></span>Stats</div>
+        </div>
+      </div>
+      <div class="mockup-caption">Detail — status, rating, notes</div>
+    </div>
+  </div>
+</section>
+
+<section id="design">
+  <div class="section-num">§ 06 — Design Tokens</div>
+  <h2>The <em>library aesthetic</em>, refined.</h2>
+  <p>Cream paper background, burgundy as the primary action color, forest green for status indicators (currently reading, completed), warm sepia for muted text. Fraunces (a soft optical-size serif) for display, Plus Jakarta Sans for UI, JetBrains Mono for code and ISBNs.</p>
+
+  <div class="swatches">
+    <div class="swatch s-cream">
+      <div class="name">Paper</div>
+      <div class="hex">#F2E8D5</div>
+    </div>
+    <div class="swatch s-creamlight">
+      <div class="name">Paper / Light</div>
+      <div class="hex">#FAF3E3</div>
+    </div>
+    <div class="swatch s-burgundy">
+      <div class="name">Burgundy</div>
+      <div class="hex">#6B1F2E</div>
+    </div>
+    <div class="swatch s-forest">
+      <div class="name">Forest</div>
+      <div class="hex">#2D4A3E</div>
+    </div>
+    <div class="swatch s-sepia">
+      <div class="name">Sepia</div>
+      <div class="hex">#8B7456</div>
+    </div>
+    <div class="swatch s-ink">
+      <div class="name">Ink</div>
+      <div class="hex">#1A1410</div>
+    </div>
+  </div>
+
+  <div class="type-spec">
+    <div class="row">
+      <div class="label-row">Display — Fraunces 400, opsz 144</div>
+      <div class="type-display">A library of one.</div>
+    </div>
+    <div class="row">
+      <div class="label-row">Display Italic — Fraunces 300 italic</div>
+      <div class="type-italic">your books, manga, and comics</div>
+    </div>
+    <div class="row">
+      <div class="label-row">Body — Plus Jakarta Sans 400</div>
+      <div class="type-body">Scan a barcode, search a title, save to library or wishlist. Filter by type, sort by date added or rating, search across everything.</div>
+    </div>
+    <div class="row">
+      <div class="label-row">Mono — JetBrains Mono 500</div>
+      <div class="type-mono">isbn: 9780393635522 · status: reading</div>
+    </div>
+  </div>
+</section>
+
+<section id="phases">
+  <div class="section-num">§ 07 — Build Phases</div>
+  <h2>Four phases. <em>Two evenings.</em></h2>
+  <p>Each phase ends with something runnable. Don't move to the next phase until the current one works on your phone.</p>
+
+  <div class="phase">
+    <span class="num">Phase 01 — Shell</span>
+    <h3>Navigable empty app</h3>
+    <ul>
+      <li><strong>Vite + React + TS</strong> scaffold with PWA plugin configured</li>
+      <li><strong>Tailwind</strong> wired with the design tokens (custom theme)</li>
+      <li><strong>React Router</strong> with the five routes: /library /wishlist /add /stats /settings</li>
+      <li><strong>Bottom nav component</strong> with the burgundy active state</li>
+      <li><strong>Cloudflare Pages</strong> deploy from a fresh GitHub repo, no DB yet</li>
+    </ul>
+  </div>
+
+  <div class="phase">
+    <span class="num">Phase 02 — Discovery</span>
+    <h3>Scan and search work end-to-end</h3>
+    <ul>
+      <li><strong>@zxing/browser</strong> integrated on /add, ISBN read from camera</li>
+      <li><strong>Google Books fetch</strong> wrapped in a typed client</li>
+      <li><strong>Open Library fallback</strong> chained when Google Books returns nothing</li>
+      <li><strong>AniList client</strong> for manga search (GraphQL, no auth)</li>
+      <li><strong>Result preview card</strong> — cover, title, creator, "Add to Library" / "Add to Wishlist"</li>
+    </ul>
+  </div>
+
+  <div class="phase">
+    <span class="num">Phase 03 — Storage</span>
+    <h3>D1 + Worker + the library actually persists</h3>
+    <ul>
+      <li><strong>D1 database</strong> created via wrangler, schema migrated</li>
+      <li><strong>Worker API</strong>: GET /items, POST /items, PATCH /items/:id, DELETE /items/:id</li>
+      <li><strong>PIN auth</strong> — env var on the Worker, sets HttpOnly cookie, gates all routes</li>
+      <li><strong>Library + Wishlist views</strong> render real data from the API</li>
+      <li><strong>Item Detail</strong> screen — edit status, rating, notes; move between lists</li>
+    </ul>
+  </div>
+
+  <div class="phase">
+    <span class="num">Phase 04 — Polish</span>
+    <h3>Feels like an actual app</h3>
+    <ul>
+      <li><strong>Filters &amp; sort</strong> on Library (type chips, status, date added)</li>
+      <li><strong>Stats screen</strong> — counts by type, books read this year, simple chart</li>
+      <li><strong>Service worker</strong> caches the shell + last library snapshot for offline</li>
+      <li><strong>Install prompt</strong> on iOS / Android — proper PWA icons and splash</li>
+      <li><strong>Empty states &amp; loading skeletons</strong> in burgundy + cream</li>
+    </ul>
+  </div>
+</section>
+
+<section id="claude">
+  <div class="section-num">§ 08 — Claude Code Hand-off</div>
+  <h2>Open the terminal. <em>Paste this in.</em></h2>
+  <p>This is the actual prompt to give Claude Code on first run. Save the included <code class="inline">CLAUDE.md</code> file at the repo root before starting — Claude reads it automatically and uses it as the source of truth for tokens, schema, and architecture.</p>
+
+  <h3 style="margin-top: 2rem;">Step 1 — Create the repo</h3>
+<pre><span class="c"># on your machine</span>
+mkdir stacks &amp;&amp; cd stacks
+git init
+<span class="c"># save CLAUDE.md and STACKS-SPEC.html into this folder</span>
+claude
+</pre>
+
+  <h3 style="margin-top: 2rem;">Step 2 — First prompt to Claude Code</h3>
+<pre>Read CLAUDE.md — that's the source of truth for this project.
+
+We're starting Phase 01 from STACKS-SPEC.html (the Shell phase).
+Build the navigable empty app:
+
+1. Initialize Vite + React + TypeScript
+2. Add Tailwind with the design tokens from CLAUDE.md
+   (cream / burgundy / forest / sepia / ink, plus the Fraunces +
+   Plus Jakarta Sans + JetBrains Mono font setup)
+3. Add React Router with these routes:
+   /library  /wishlist  /add  /stats  /settings
+4. Build a BottomNav component — burgundy active state,
+   center "Add" button slightly larger
+5. Each route is just a placeholder header for now
+6. Configure vite-plugin-pwa with a basic manifest
+   (Stacks, burgundy theme color)
+7. Add a wrangler.jsonc so I can deploy to Cloudflare Pages
+
+Don't add the API, scanning, or storage yet — Phase 01 is the shell only.
+End by showing me how to npm run dev and what to push to GitHub.
+</pre>
+
+  <h3 style="margin-top: 2rem;">Step 3 — Subsequent phases</h3>
+  <p>After Phase 01 is running on your phone (Cloudflare Pages auto-deploys from GitHub), kick off the next phase with a one-liner:</p>
+<pre>Move to Phase 02 from STACKS-SPEC.html.
+Build the scan + search flow on /add per the spec's API chain.
+Use @zxing/browser for scanning. Show me a working result
+preview card before wiring up the save action.
+</pre>
+
+  <p style="margin-top: 1.5rem;">Then Phase 03 (D1 + Worker + auth), then Phase 04 (polish, stats, offline). Each phase should take an evening or two of your real time, more like 15–30 minutes of <em>your</em> time once Claude Code is doing the work.</p>
+
+  <h3 style="margin-top: 2rem;">A note on what's in CLAUDE.md</h3>
+  <p>The <code class="inline">CLAUDE.md</code> file lives at the project root and gets loaded automatically every time you start Claude Code in that directory. It includes: the design tokens (so colors stay consistent), the data model (so schema doesn't drift), the API chain logic, file structure conventions, and a "what NOT to do" section that locks down scope creep — e.g. "do not add user accounts, do not add a recommendation engine, do not add social features." That's the file that keeps Claude Code on the rails.</p>
+</section>
+
+<footer>
+  <div class="display">"A library of one."</div>
+  <div class="small">Stacks — Personal Spec · v1.0 · April 2026</div>
+</footer>
+
+<script>
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('a[href^="#"]')) {
+      const drawer = document.getElementById('drawer');
+      if (drawer) drawer.classList.remove('open');
+    }
+  });
+</script>
+
+</body>
+</html>

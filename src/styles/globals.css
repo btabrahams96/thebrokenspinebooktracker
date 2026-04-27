@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body, #root {
+    @apply h-full;
+  }
+  body {
+    @apply bg-paper text-ink font-sans antialiased;
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(107, 31, 46, 0.04), transparent 40%),
+      radial-gradient(circle at 80% 80%, rgba(45, 74, 62, 0.04), transparent 40%);
+  }
+  .display {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: 'opsz' 144, 'SOFT' 100;
+    letter-spacing: -0.02em;
+  }
+}
