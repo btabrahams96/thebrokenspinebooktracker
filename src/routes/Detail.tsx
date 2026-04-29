@@ -9,6 +9,7 @@ import { ChevronLeftIcon, StarIcon } from '../components/icons';
 import { useDebouncedCallback } from '../hooks/useDebouncedCallback';
 import { formatShortDate } from '../lib/dates';
 import { useToast } from '../components/Toast';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 type SaveState = 'idle' | 'saving' | 'saved';
 
@@ -20,6 +21,7 @@ export default function Detail() {
   const [notes, setNotes] = useState('');
   const [noteState, setNoteState] = useState<SaveState>('idle');
   const toast = useToast();
+  useDocumentTitle(item ? `${item.title} — The Broken Spine` : 'The Broken Spine');
 
   useEffect(() => {
     if (!id) return;

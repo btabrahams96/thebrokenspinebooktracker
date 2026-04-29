@@ -7,6 +7,8 @@ import ResultPreview from '../components/ResultPreview';
 import { lookupByIsbn, searchByText, isFailure, type LookupResult } from '../lib/lookup';
 import { api } from '../lib/api';
 import { useToast } from '../components/Toast';
+import ManualEntryModal from '../components/ManualEntryModal';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import type { ItemType } from '../types';
 
 type Mode = 'scan' | 'search';
@@ -24,7 +26,9 @@ export default function Add() {
   const [result, setResult] = useState<LookupResult | null>(null);
   const [results, setResults] = useState<LookupResult[]>([]);
   const [notFound, setNotFound] = useState<{ isbn?: string } | null>(null);
+  const [manualOpen, setManualOpen] = useState(false);
   const toast = useToast();
+  useDocumentTitle('The Broken Spine — Add');
 
   const handleIsbn = useCallback(
     async (isbn: string) => {
@@ -166,12 +170,24 @@ export default function Add() {
                 : 'Nothing matched that search.'}
             </p>
             <p className="mt-1 text-sm italic text-sepia">
-              Manual entry lands in Phase 03 — for now, try a different search or angle.
+              Add it manually instead.
             </p>
+            <button
+              onClick={() => setManualOpen(true)}
+              className="mt-3 rounded-md bg-burgundy px-3 py-1.5 text-xs font-semibold text-paper-light"
+            >
+              Add manually
+            </button>
           </div>
         )}
       </div>
 
+      <ManualEntryModal
+        open={manualOpen}
+        initialIsbn={notFound?.isbn}
+        onClose={() => setManualOpen(false)}
+        onSaved={() => setNotFound(null)}
+      />
     </Page>
   );
 }

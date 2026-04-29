@@ -8,6 +8,7 @@ import EmptyState from '../components/EmptyState';
 import ReadingStrip from '../components/ReadingStrip';
 import SearchBar, { type SearchBarHandle } from '../components/SearchBar';
 import { GridSkeleton } from '../components/Skeleton';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useItems } from '../hooks/useItems';
 import type { Item, ItemStatus, ItemType } from '../types';
 import { STATUS_CLASSES } from '../lib/status';
@@ -43,6 +44,7 @@ const isSort = (v: string | null): v is SortKey =>
   v === 'recent' || v === 'title' || v === 'rating' || v === 'finished';
 
 export default function Library() {
+  useDocumentTitle('The Broken Spine — Library');
   const [params, setParams] = useSearchParams();
 
   const type: ItemType | 'all' = isType(params.get('type')) ? (params.get('type') as ItemType) : 'all';

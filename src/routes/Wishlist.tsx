@@ -5,8 +5,10 @@ import ItemCard from '../components/ItemCard';
 import EmptyState from '../components/EmptyState';
 import { GridSkeleton } from '../components/Skeleton';
 import { useItems } from '../hooks/useItems';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export default function Wishlist() {
+  useDocumentTitle('The Broken Spine — Wishlist');
   const { items, error } = useItems({ status: 'wishlist' });
 
   const counter = items ? (
