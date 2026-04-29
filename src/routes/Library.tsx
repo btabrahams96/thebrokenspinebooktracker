@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
+import Page from '../components/Page';
 import PageHeader from '../components/PageHeader';
+import CardGrid from '../components/CardGrid';
 import ItemCard from '../components/ItemCard';
 import EmptyState from '../components/EmptyState';
 import { GridSkeleton } from '../components/Skeleton';
@@ -28,7 +30,6 @@ export default function Library() {
   const params = useMemo(
     () => ({
       type: type === 'all' ? undefined : type,
-      // Library shows everything except wishlist by default; wishlist has its own page.
       status: status === 'all' ? undefined : status
     }),
     [type, status]
@@ -40,14 +41,18 @@ export default function Library() {
     [items, status]
   );
 
+  const counter = items ? (
+    <div className="font-mono text-xs text-sepia">{visible.length} items</div>
+  ) : null;
+
   return (
-    <div className="px-5 pt-8 md:px-12 md:pt-12 pb-12">
-      <div className="flex items-end justify-between gap-4">
-        <PageHeader eyebrow="§ 01" title="Library" subtitle="Everything you own." />
-        {items && (
-          <div className="font-mono text-xs text-sepia pb-2">{visible.length} items</div>
-        )}
-      </div>
+    <Page>
+      <PageHeader
+        eyebrow="§ 01"
+        title="Library"
+        subtitle="Everything you own."
+        right={counter}
+      />
 
       <div className="mt-6 flex flex-wrap gap-2">
         {TYPE_FILTERS.map((f) => (
@@ -79,14 +84,14 @@ export default function Library() {
           />
         )}
         {visible.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+          <CardGrid>
             {visible.map((it) => (
               <ItemCard key={it.id} item={it} />
             ))}
-          </div>
+          </CardGrid>
         )}
       </div>
-    </div>
+    </Page>
   );
 }
 

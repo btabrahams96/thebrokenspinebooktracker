@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Page from '../components/Page';
 import PageHeader from '../components/PageHeader';
 import { api, type Stats as StatsT } from '../lib/api';
 import { LineSkeleton } from '../components/Skeleton';
@@ -15,7 +16,7 @@ export default function Stats() {
   }, []);
 
   return (
-    <div className="px-5 pt-8 md:px-12 md:pt-12 pb-12">
+    <Page>
       <PageHeader eyebrow="§ 04" title="Stats" subtitle="A quiet count of what you've read." />
 
       {error && <p className="mt-8 text-burgundy">{error}</p>}
@@ -52,7 +53,7 @@ export default function Stats() {
           />
         </div>
       )}
-    </div>
+    </Page>
   );
 }
 

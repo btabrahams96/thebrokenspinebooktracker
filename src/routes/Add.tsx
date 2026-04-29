@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import Page from '../components/Page';
 import PageHeader from '../components/PageHeader';
 import Scanner from '../components/Scanner';
 import SearchBar from '../components/SearchBar';
@@ -85,7 +86,7 @@ export default function Add() {
   };
 
   return (
-    <div className="px-5 pt-8 md:px-12 md:pt-12 pb-12">
+    <Page>
       <PageHeader eyebrow="§ 03" title="Add" subtitle="Aim at the barcode, or search." />
 
       <div className="mt-6 flex flex-wrap items-center gap-2">
@@ -173,7 +174,7 @@ export default function Add() {
           {toast}
         </div>
       )}
-    </div>
+    </Page>
   );
 }
 

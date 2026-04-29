@@ -1,3 +1,4 @@
+import Page from '../components/Page';
 import PageHeader from '../components/PageHeader';
 import { useAuth } from '../hooks/useAuth';
 
@@ -5,7 +6,7 @@ export default function Settings() {
   const { signOut } = useAuth();
 
   return (
-    <div className="px-5 pt-8 md:px-12 md:pt-12 pb-12">
+    <Page>
       <PageHeader eyebrow="§ 05" title="Settings" subtitle="A short list, on purpose." />
 
       <div className="mt-10 space-y-6 max-w-md">
@@ -24,7 +25,7 @@ export default function Settings() {
           </p>
         </Section>
       </div>
-    </div>
+    </Page>
   );
 }
 

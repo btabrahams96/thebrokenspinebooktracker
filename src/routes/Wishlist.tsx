@@ -1,4 +1,6 @@
+import Page from '../components/Page';
 import PageHeader from '../components/PageHeader';
+import CardGrid from '../components/CardGrid';
 import ItemCard from '../components/ItemCard';
 import EmptyState from '../components/EmptyState';
 import { GridSkeleton } from '../components/Skeleton';
@@ -7,12 +9,18 @@ import { useItems } from '../hooks/useItems';
 export default function Wishlist() {
   const { items, error } = useItems({ status: 'wishlist' });
 
+  const counter = items ? (
+    <div className="font-mono text-xs text-sepia">{items.length} items</div>
+  ) : null;
+
   return (
-    <div className="px-5 pt-8 md:px-12 md:pt-12 pb-12">
-      <div className="flex items-end justify-between gap-4">
-        <PageHeader eyebrow="§ 02" title="Wishlist" subtitle="Things you want next." />
-        {items && <div className="font-mono text-xs text-sepia pb-2">{items.length} items</div>}
-      </div>
+    <Page>
+      <PageHeader
+        eyebrow="§ 02"
+        title="Wishlist"
+        subtitle="Things you want next."
+        right={counter}
+      />
 
       <div className="mt-8">
         {error && <p className="text-burgundy">{error}</p>}
@@ -25,13 +33,13 @@ export default function Wishlist() {
           />
         )}
         {items && items.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+          <CardGrid>
             {items.map((it) => (
               <ItemCard key={it.id} item={it} />
             ))}
-          </div>
+          </CardGrid>
         )}
       </div>
-    </div>
+    </Page>
   );
 }
