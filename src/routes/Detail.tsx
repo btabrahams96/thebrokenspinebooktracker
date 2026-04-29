@@ -6,14 +6,19 @@ import type { Item } from '../types';
 import { STATUS_CLASSES, STATUS_LABEL, STATUS_ORDER } from '../lib/status';
 import CoverPlaceholder from '../components/CoverPlaceholder';
 import { ChevronLeftIcon, StarIcon } from '../components/icons';
+import { useDebouncedCallback } from '../hooks/useDebouncedCallback';
+import { formatShortDate } from '../lib/dates';
+
+type SaveState = 'idle' | 'saving' | 'saved';
 
 export default function Detail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [item, setItem] = useState<Item | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
+  const [savingError, setSavingError] = useState<string | null>(null);
   const [notes, setNotes] = useState('');
+  const [noteState, setNoteState] = useState<SaveState>('idle');
 
   useEffect(() => {
     if (!id) return;
@@ -25,6 +30,43 @@ export default function Detail() {
       })
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load.'));
   }, [id]);
+
+  // Optimistic patch with revert on failure.
+  const applyPatch = async <K extends keyof Item>(patch: Pick<Item, K>) => {
+    if (!item || !id) return;
+    const previous = item;
+    setItem({ ...item, ...patch });
+    try {
+      const r = await api.patchItem(id, patch);
+      setItem(r.item);
+      setSavingError(null);
+    } catch {
+      setItem(previous);
+      setSavingError('Couldn\'t save. Try again.');
+      setTimeout(() => setSavingError(null), 2800);
+    }
+  };
+
+  const saveNotes = useDebouncedCallback(async (next: string) => {
+    if (!id || !item) return;
+    setNoteState('saving');
+    try {
+      const r = await api.patchItem(id, { notes: next || undefined });
+      setItem(r.item);
+      setNoteState('saved');
+      setTimeout(
+        () => setNoteState((s) => (s === 'saved' ? 'idle' : s)),
+        1500
+      );
+    } catch {
+      setNoteState('idle');
+      setSavingError('Couldn\'t save notes. Try again.');
+      setTimeout(() => setSavingError(null), 2800);
+    }
+  }, 800);
+
+  // Force-flush any pending notes save when leaving.
+  useEffect(() => () => saveNotes.flush(), [saveNotes]);
 
   if (error)
     return (
@@ -40,16 +82,6 @@ export default function Detail() {
         <p className="mt-6 italic text-sepia">Loading…</p>
       </Page>
     );
-
-  const update = async (patch: Partial<Item>) => {
-    setSaving(true);
-    try {
-      const r = await api.patchItem(id, patch);
-      setItem(r.item);
-    } finally {
-      setSaving(false);
-    }
-  };
 
   const remove = async () => {
     if (!confirm('Remove this from your library?')) return;
@@ -77,8 +109,8 @@ export default function Detail() {
       <dt>Type</dt><dd className="text-ink">{item.type}</dd>
       {item.isbn && (<><dt>ISBN</dt><dd className="text-ink">{item.isbn}</dd></>)}
       {item.series && (<><dt>Series</dt><dd className="text-ink">{item.series}{item.volume ? ` · v${item.volume}` : ''}</dd></>)}
-      <dt>Added</dt><dd className="text-ink">{item.date_added.slice(0, 10)}</dd>
-      {item.date_finished && (<><dt>Finished</dt><dd className="text-ink">{item.date_finished.slice(0, 10)}</dd></>)}
+      <dt>Added</dt><dd className="text-ink">{formatShortDate(item.date_added)}</dd>
+      {item.date_finished && (<><dt>Finished</dt><dd className="text-ink">{formatShortDate(item.date_finished)}</dd></>)}
       {item.source && (<><dt>Source</dt><dd className="text-ink">{item.source.replace('_', ' ')}</dd></>)}
     </dl>
   );
@@ -94,8 +126,8 @@ export default function Detail() {
             return (
               <button
                 key={s}
-                onClick={() => void update({ status: s })}
-                disabled={saving || active}
+                onClick={() => void applyPatch({ status: s })}
+                disabled={active}
                 className={`rounded-full px-3 py-1 text-xs font-medium border transition-colors ${
                   active ? cls.pillActive : cls.pillIdle
                 }`}
@@ -116,7 +148,9 @@ export default function Detail() {
               <button
                 key={n}
                 onClick={() =>
-                  void update({ rating: (item.rating === n ? null : n) as 1 | 2 | 3 | 4 | 5 })
+                  void applyPatch({
+                    rating: (item.rating === n ? null : n) as 1 | 2 | 3 | 4 | 5
+                  })
                 }
                 className={filled ? 'text-burgundy' : 'text-sepia-light hover:text-sepia'}
                 aria-label={`${n} stars`}
@@ -156,12 +190,19 @@ export default function Detail() {
           <div className="xl:hidden mt-6">{actions}</div>
 
           <div className="mt-6">
-            <p className="text-xs uppercase tracking-widest text-sepia mb-2">Notes</p>
+            <div className="flex items-baseline justify-between mb-2">
+              <p className="text-xs uppercase tracking-widest text-sepia">Notes</p>
+              {noteState !== 'idle' && (
+                <span className="text-xs italic text-sepia">
+                  {noteState === 'saving' ? 'Saving…' : 'Saved'}
+                </span>
+              )}
+            </div>
             <textarea
               value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              onBlur={() => {
-                if ((item.notes ?? '') !== notes) void update({ notes: notes || undefined });
+              onChange={(e) => {
+                setNotes(e.target.value);
+                saveNotes(e.target.value);
               }}
               rows={5}
               placeholder="A line or two for future you."
@@ -179,6 +220,15 @@ export default function Detail() {
           </div>
         </aside>
       </div>
+
+      {savingError && (
+        <div
+          role="status"
+          className="fixed bottom-24 md:bottom-6 left-1/2 -translate-x-1/2 rounded-md bg-ink border-l-4 border-burgundy px-4 py-2 text-sm text-paper-light shadow-lg"
+        >
+          {savingError}
+        </div>
+      )}
     </Page>
   );
 }
