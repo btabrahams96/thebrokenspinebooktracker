@@ -1,7 +1,13 @@
-// Cloudflare Pages config (frontend).
-// The Worker (Phase 03) gets its own wrangler.jsonc inside `worker/`.
+// Cloudflare Workers + Static Assets.
+// Phase 02: serves the Vite build only (no Worker code yet).
+// Phase 03: a Worker entry will be added at worker/src/index.ts and wired
+// here via "main", with a D1 binding and PIN secret.
 {
+  "$schema": "node_modules/wrangler/config-schema.json",
   "name": "thebrokenspinebooktracker",
   "compatibility_date": "2026-04-01",
-  "pages_build_output_dir": "dist"
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  }
 }
