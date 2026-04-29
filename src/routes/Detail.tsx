@@ -8,6 +8,7 @@ import CoverPlaceholder from '../components/CoverPlaceholder';
 import { ChevronLeftIcon, StarIcon } from '../components/icons';
 import { useDebouncedCallback } from '../hooks/useDebouncedCallback';
 import { formatShortDate } from '../lib/dates';
+import { useToast } from '../components/Toast';
 
 type SaveState = 'idle' | 'saving' | 'saved';
 
@@ -16,9 +17,9 @@ export default function Detail() {
   const navigate = useNavigate();
   const [item, setItem] = useState<Item | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [savingError, setSavingError] = useState<string | null>(null);
   const [notes, setNotes] = useState('');
   const [noteState, setNoteState] = useState<SaveState>('idle');
+  const toast = useToast();
 
   useEffect(() => {
     if (!id) return;
@@ -39,11 +40,9 @@ export default function Detail() {
     try {
       const r = await api.patchItem(id, patch);
       setItem(r.item);
-      setSavingError(null);
     } catch {
       setItem(previous);
-      setSavingError('Couldn\'t save. Try again.');
-      setTimeout(() => setSavingError(null), 2800);
+      toast.show('Couldn\'t save. Try again.', 'error');
     }
   };
 
@@ -60,8 +59,7 @@ export default function Detail() {
       );
     } catch {
       setNoteState('idle');
-      setSavingError('Couldn\'t save notes. Try again.');
-      setTimeout(() => setSavingError(null), 2800);
+      toast.show('Couldn\'t save notes. Try again.', 'error');
     }
   }, 800);
 
@@ -221,14 +219,6 @@ export default function Detail() {
         </aside>
       </div>
 
-      {savingError && (
-        <div
-          role="status"
-          className="fixed bottom-24 md:bottom-6 left-1/2 -translate-x-1/2 rounded-md bg-ink border-l-4 border-burgundy px-4 py-2 text-sm text-paper-light shadow-lg"
-        >
-          {savingError}
-        </div>
-      )}
     </Page>
   );
 }

@@ -30,15 +30,9 @@ export default function Scanner({ onDetected, paused }: Props) {
         const controls = await reader.decodeFromVideoDevice(
           back?.deviceId,
           videoRef.current,
-          (result, err) => {
+          (result) => {
             if (cancelled) return;
-            if (result) {
-              const text = result.getText();
-              onDetected(text);
-            }
-            if (err && err.name !== 'NotFoundException') {
-              // Decode misses fire constantly; only surface real errors.
-            }
+            if (result) onDetected(result.getText());
           }
         );
         controlsRef.current = controls;
@@ -58,14 +52,27 @@ export default function Scanner({ onDetected, paused }: Props) {
   }, [onDetected, paused]);
 
   return (
-    <div className="relative aspect-[3/4] w-full max-w-md overflow-hidden rounded-2xl bg-ink">
+    <div className="relative w-full max-w-md aspect-[3/4] md:aspect-[4/3] overflow-hidden rounded-2xl bg-ink">
       <video
         ref={videoRef}
         className="absolute inset-0 h-full w-full object-cover"
         playsInline
         muted
       />
-      <div className="pointer-events-none absolute inset-[15%_12%] rounded-md border-2 border-burgundy-light/80" />
+
+      {/* Corner brackets */}
+      <div className="pointer-events-none absolute inset-[15%_12%]">
+        <Corner pos="top-0 left-0" sides="border-t-2 border-l-2" />
+        <Corner pos="top-0 right-0" sides="border-t-2 border-r-2" />
+        <Corner pos="bottom-0 left-0" sides="border-b-2 border-l-2" />
+        <Corner pos="bottom-0 right-0" sides="border-b-2 border-r-2" />
+        {!starting && !error && (
+          <span className="absolute inset-0 grid place-items-center">
+            <span className="h-1.5 w-1.5 rounded-full bg-burgundy-light animate-pulse-dot" />
+          </span>
+        )}
+      </div>
+
       {(starting || error) && (
         <div className="absolute inset-0 grid place-items-center bg-ink/80 p-6 text-center">
           <p className="text-paper-light text-sm">
@@ -78,4 +85,8 @@ export default function Scanner({ onDetected, paused }: Props) {
       </p>
     </div>
   );
+}
+
+function Corner({ pos, sides }: { pos: string; sides: string }) {
+  return <div className={`absolute h-6 w-6 ${sides} border-burgundy-light rounded-sm ${pos}`} />;
 }

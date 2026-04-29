@@ -6,6 +6,7 @@ import SearchBar from '../components/SearchBar';
 import ResultPreview from '../components/ResultPreview';
 import { lookupByIsbn, searchByText, isFailure, type LookupResult } from '../lib/lookup';
 import { api } from '../lib/api';
+import { useToast } from '../components/Toast';
 import type { ItemType } from '../types';
 
 type Mode = 'scan' | 'search';
@@ -23,7 +24,7 @@ export default function Add() {
   const [result, setResult] = useState<LookupResult | null>(null);
   const [results, setResults] = useState<LookupResult[]>([]);
   const [notFound, setNotFound] = useState<{ isbn?: string } | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
+  const toast = useToast();
 
   const handleIsbn = useCallback(
     async (isbn: string) => {
@@ -74,14 +75,16 @@ export default function Add() {
         source: r.source,
         status
       });
-      setToast(`${r.title} · saved to ${status === 'owned' ? 'Library' : 'Wishlist'}`);
+      toast.show(
+        `${r.title} · saved to ${status === 'owned' ? 'Library' : 'Wishlist'}`,
+        'success'
+      );
       setResult(null);
       setResults([]);
     } catch (e) {
-      setToast(e instanceof Error ? `Couldn't save: ${e.message}` : 'Save failed.');
+      toast.show(e instanceof Error ? `Couldn't save: ${e.message}` : 'Save failed.', 'error');
     } finally {
       setBusy(false);
-      setTimeout(() => setToast(null), 2800);
     }
   };
 
@@ -169,11 +172,6 @@ export default function Add() {
         )}
       </div>
 
-      {toast && (
-        <div className="fixed bottom-24 md:bottom-6 left-1/2 -translate-x-1/2 rounded-md bg-ink px-4 py-2 text-sm text-paper-light shadow-lg">
-          {toast}
-        </div>
-      )}
     </Page>
   );
 }
