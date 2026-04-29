@@ -1,13 +1,24 @@
-// Cloudflare Workers + Static Assets.
-// Phase 02: serves the Vite build only (no Worker code yet).
-// Phase 03: a Worker entry will be added at worker/src/index.ts and wired
-// here via "main", with a D1 binding and PIN secret.
+// Cloudflare Workers + Static Assets + D1.
+// One deployment serves the React build and the API at /api/*.
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "thebrokenspinebooktracker",
   "compatibility_date": "2026-04-01",
+  "main": "worker/src/index.ts",
   "assets": {
     "directory": "./dist",
-    "not_found_handling": "single-page-application"
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "thebrokenspine",
+      "database_id": "ccd24c89-cc21-46a1-8f47-3b6b07a64d61"
+    }
+  ],
+  "observability": {
+    "enabled": true
   }
 }

@@ -4,6 +4,7 @@ import Scanner from '../components/Scanner';
 import SearchBar from '../components/SearchBar';
 import ResultPreview from '../components/ResultPreview';
 import { lookupByIsbn, searchByText, isFailure, type LookupResult } from '../lib/lookup';
+import { api } from '../lib/api';
 import type { ItemType } from '../types';
 
 type Mode = 'scan' | 'search';
@@ -58,12 +59,29 @@ export default function Add() {
     [type]
   );
 
-  const onAdd = (r: LookupResult, status: 'owned' | 'wishlist') => {
-    // Phase 03 wires this to the Worker.
-    setToast(`${r.title} · saved to ${status === 'owned' ? 'Library' : 'Wishlist'} (stub)`);
-    setResult(null);
-    setResults([]);
-    setTimeout(() => setToast(null), 2400);
+  const onAdd = async (r: LookupResult, status: 'owned' | 'wishlist') => {
+    setBusy(true);
+    try {
+      const inferredType: ItemType = type ?? (r.source === 'anilist' ? 'manga' : 'book');
+      await api.createItem({
+        title: r.title,
+        creator: r.creator,
+        cover_url: r.cover_url,
+        type: inferredType,
+        isbn: r.isbn,
+        external_id: r.external_id,
+        source: r.source,
+        status
+      });
+      setToast(`${r.title} · saved to ${status === 'owned' ? 'Library' : 'Wishlist'}`);
+      setResult(null);
+      setResults([]);
+    } catch (e) {
+      setToast(e instanceof Error ? `Couldn't save: ${e.message}` : 'Save failed.');
+    } finally {
+      setBusy(false);
+      setTimeout(() => setToast(null), 2800);
+    }
   };
 
   return (
@@ -114,7 +132,8 @@ export default function Add() {
         {result && (
           <ResultPreview
             result={result}
-            onAdd={(s) => onAdd(result, s)}
+            pending={busy}
+            onAdd={(s) => void onAdd(result, s)}
             onDismiss={() => setResult(null)}
           />
         )}
@@ -128,7 +147,8 @@ export default function Add() {
               <ResultPreview
                 key={`${r.source}-${r.external_id ?? r.isbn ?? i}`}
                 result={r}
-                onAdd={(s) => onAdd(r, s)}
+                pending={busy}
+                onAdd={(s) => void onAdd(r, s)}
               />
             ))}
           </div>
