@@ -14,7 +14,7 @@ export default function App() {
     <AuthProvider>
       <PinGate>
         <div className="min-h-full flex flex-col md:flex-row">
-          <main className="flex-1 pb-24 md:pb-0 md:pl-64">
+          <main className="flex-1 pb-24 md:pb-0 md:pl-[72px] lg:pl-64">
             <Routes>
               <Route path="/" element={<Navigate to="/library" replace />} />
               <Route path="/library" element={<Library />} />

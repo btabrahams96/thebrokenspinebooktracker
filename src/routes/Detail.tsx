@@ -1,15 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../lib/api';
-import type { Item, ItemStatus } from '../types';
-
-const STATUSES: { value: ItemStatus; label: string }[] = [
-  { value: 'reading', label: 'Reading' },
-  { value: 'read', label: 'Read' },
-  { value: 'owned', label: 'Owned' },
-  { value: 'wishlist', label: 'Wishlist' },
-  { value: 'dnf', label: 'DNF' }
-];
+import type { Item } from '../types';
+import { STATUS_CLASSES, STATUS_LABEL, STATUS_ORDER } from '../lib/status';
+import CoverPlaceholder from '../components/CoverPlaceholder';
+import { ChevronLeftIcon, StarIcon } from '../components/icons';
 
 export default function Detail() {
   const { id } = useParams();
@@ -74,12 +69,11 @@ export default function Detail() {
             style={{ aspectRatio: '2/3' }}
           />
         ) : (
-          <div
-            className="w-40 self-center rounded-md bg-gradient-to-br from-burgundy to-burgundy-deep grid place-items-center p-4 text-center md:self-start"
-            style={{ aspectRatio: '2/3' }}
-          >
-            <span className="display text-paper-light">{item.title}</span>
-          </div>
+          <CoverPlaceholder
+            item={item}
+            className="w-40 self-center rounded-md md:self-start"
+            textClass="text-base"
+          />
         )}
 
         <div className="flex-1 min-w-0">
@@ -87,39 +81,42 @@ export default function Detail() {
           {item.creator && <p className="mt-1 text-sepia italic">{item.creator}</p>}
 
           <div className="mt-4 flex flex-wrap gap-2">
-            {STATUSES.map((s) => (
-              <button
-                key={s.value}
-                onClick={() => void update({ status: s.value })}
-                disabled={saving || item.status === s.value}
-                className={`rounded-full px-3 py-1 text-xs font-medium border ${
-                  item.status === s.value
-                    ? 'bg-burgundy text-paper-light border-burgundy'
-                    : 'bg-paper-deep text-ink border-line'
-                }`}
-              >
-                {s.label}
-              </button>
-            ))}
+            {STATUS_ORDER.map((s) => {
+              const cls = STATUS_CLASSES[s];
+              const active = item.status === s;
+              return (
+                <button
+                  key={s}
+                  onClick={() => void update({ status: s })}
+                  disabled={saving || active}
+                  className={`rounded-full px-3 py-1 text-xs font-medium border transition-colors ${
+                    active ? cls.pillActive : cls.pillIdle
+                  }`}
+                >
+                  {STATUS_LABEL[s]}
+                </button>
+              );
+            })}
           </div>
 
           <div className="mt-5">
             <p className="text-xs uppercase tracking-widest text-sepia mb-2">Rating</p>
             <div className="flex gap-1">
-              {[1, 2, 3, 4, 5].map((n) => (
-                <button
-                  key={n}
-                  onClick={() =>
-                    void update({ rating: (item.rating === n ? null : n) as 1 | 2 | 3 | 4 | 5 })
-                  }
-                  className={`text-2xl ${
-                    item.rating && n <= item.rating ? 'text-burgundy' : 'text-sepia-light'
-                  }`}
-                  aria-label={`${n} stars`}
-                >
-                  ★
-                </button>
-              ))}
+              {[1, 2, 3, 4, 5].map((n) => {
+                const filled = !!item.rating && n <= item.rating;
+                return (
+                  <button
+                    key={n}
+                    onClick={() =>
+                      void update({ rating: (item.rating === n ? null : n) as 1 | 2 | 3 | 4 | 5 })
+                    }
+                    className={filled ? 'text-burgundy' : 'text-sepia-light hover:text-sepia'}
+                    aria-label={`${n} stars`}
+                  >
+                    <StarIcon className="h-6 w-6" filled={filled} />
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -160,8 +157,8 @@ export default function Detail() {
 
 function BackLink() {
   return (
-    <Link to="/library" className="text-sm text-sepia hover:text-burgundy">
-      ← Back
+    <Link to="/library" className="inline-flex items-center gap-1 text-sm text-sepia hover:text-burgundy">
+      <ChevronLeftIcon className="h-4 w-4" /> Back
     </Link>
   );
 }

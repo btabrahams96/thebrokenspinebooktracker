@@ -5,6 +5,7 @@ import EmptyState from '../components/EmptyState';
 import { GridSkeleton } from '../components/Skeleton';
 import { useItems } from '../hooks/useItems';
 import type { ItemStatus, ItemType } from '../types';
+import { STATUS_CLASSES } from '../lib/status';
 
 const TYPE_FILTERS: { value: ItemType | 'all'; label: string }[] = [
   { value: 'all', label: 'All' },
@@ -50,15 +51,20 @@ export default function Library() {
 
       <div className="mt-6 flex flex-wrap gap-2">
         {TYPE_FILTERS.map((f) => (
-          <Chip key={f.value} active={type === f.value} onClick={() => setType(f.value)} tone="burgundy">
+          <TypeChip key={f.value} active={type === f.value} onClick={() => setType(f.value)}>
             {f.label}
-          </Chip>
+          </TypeChip>
         ))}
         <span className="mx-1 self-center text-line">·</span>
         {STATUS_FILTERS.map((f) => (
-          <Chip key={f.value} active={status === f.value} onClick={() => setStatus(f.value)} tone="forest">
+          <StatusChip
+            key={f.value}
+            active={status === f.value}
+            onClick={() => setStatus(f.value)}
+            statusKey={f.value === 'all' ? null : f.value}
+          >
             {f.label}
-          </Chip>
+          </StatusChip>
         ))}
       </div>
 
@@ -84,22 +90,44 @@ export default function Library() {
   );
 }
 
-function Chip({
+function TypeChip({
   children,
   active,
-  onClick,
-  tone
+  onClick
 }: {
   children: React.ReactNode;
   active: boolean;
   onClick: () => void;
-  tone: 'burgundy' | 'forest';
 }) {
-  const activeCls = tone === 'burgundy' ? 'bg-burgundy text-paper-light border-burgundy' : 'bg-forest text-paper-light border-forest';
   return (
     <button
       onClick={onClick}
-      className={`rounded-full px-3 py-1 text-xs font-medium border ${
+      className={`rounded-full px-3 py-1 text-xs font-medium border transition-colors ${
+        active ? 'bg-burgundy text-paper-light border-burgundy' : 'bg-paper-deep text-ink border-line'
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+function StatusChip({
+  children,
+  active,
+  onClick,
+  statusKey
+}: {
+  children: React.ReactNode;
+  active: boolean;
+  onClick: () => void;
+  statusKey: ItemStatus | null;
+}) {
+  const cls = statusKey ? STATUS_CLASSES[statusKey] : null;
+  const activeCls = cls?.pillActive ?? 'bg-ink text-paper-light border-ink';
+  return (
+    <button
+      onClick={onClick}
+      className={`rounded-full px-3 py-1 text-xs font-medium border transition-colors ${
         active ? activeCls : 'bg-paper-deep text-ink border-line'
       }`}
     >
