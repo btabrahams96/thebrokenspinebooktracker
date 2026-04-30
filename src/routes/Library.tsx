@@ -126,58 +126,58 @@ export default function Library() {
     <Page>
       <PageHeader eyebrow="§ 01" title="Library" subtitle="Everything you own." right={counter} />
 
-      <div className="mt-6">
-        {items && <ReadingStrip items={reading} />}
-
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex flex-wrap gap-2">
-            {TYPE_FILTERS.map((f) => (
-              <TypeChip
-                key={f.value}
-                active={type === f.value}
-                onClick={() => updateParams({ type: f.value })}
-              >
-                {f.label}
-              </TypeChip>
-            ))}
-            <span className="mx-1 self-center text-line">·</span>
-            {STATUS_FILTERS.map((f) => (
-              <StatusChip
-                key={f.value}
-                active={status === f.value}
-                onClick={() => updateParams({ status: f.value })}
-                statusKey={f.value === 'all' ? null : f.value}
-              >
-                {f.label}
-              </StatusChip>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-2 lg:shrink-0">
-            <div className="flex-1 lg:w-72">
-              <SearchBar
-                ref={searchRef}
-                placeholder="Search your library"
-                liveValue={query}
-                onChange={setQuery}
-                onSubmit={() => undefined}
-              />
-            </div>
-            <select
-              value={sort}
-              onChange={(e) => updateParams({ sort: e.target.value })}
-              className="bg-paper-deep border border-line rounded-md px-3 py-1.5 text-sm font-medium text-ink"
-              aria-label="Sort"
-            >
-              {SORTS.map((s) => (
-                <option key={s.value} value={s.value}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
-          </div>
+      {/* Search + sort row, immediately under the header. */}
+      <div className="mt-4 flex items-center gap-2">
+        <div className="flex-1 lg:max-w-md">
+          <SearchBar
+            ref={searchRef}
+            placeholder="Search your library"
+            liveValue={query}
+            onChange={setQuery}
+            onSubmit={() => undefined}
+          />
         </div>
+        <select
+          value={sort}
+          onChange={(e) => updateParams({ sort: e.target.value })}
+          className="bg-paper-deep border border-line rounded-md px-3 py-1.5 text-sm font-medium text-ink shrink-0"
+          aria-label="Sort"
+        >
+          {SORTS.map((s) => (
+            <option key={s.value} value={s.value}>
+              {s.label}
+            </option>
+          ))}
+        </select>
       </div>
+
+      {/* Filter chips. Two rows on mobile (types, then statuses);
+          one wrapping line on lg with a divider between the groups. */}
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        {TYPE_FILTERS.map((f) => (
+          <TypeChip
+            key={f.value}
+            active={type === f.value}
+            onClick={() => updateParams({ type: f.value })}
+          >
+            {f.label}
+          </TypeChip>
+        ))}
+        <span className="hidden lg:inline self-center text-sepia-light px-1">·</span>
+        <span className="basis-full lg:hidden h-0" aria-hidden />
+        {STATUS_FILTERS.map((f) => (
+          <StatusChip
+            key={f.value}
+            active={status === f.value}
+            onClick={() => updateParams({ status: f.value })}
+            statusKey={f.value === 'all' ? null : f.value}
+          >
+            {f.label}
+          </StatusChip>
+        ))}
+      </div>
+
+      {items && <ReadingStrip items={reading} />}
 
       <div className="mt-8">
         {error && <p className="text-burgundy">{error}</p>}

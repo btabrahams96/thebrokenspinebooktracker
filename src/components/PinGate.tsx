@@ -34,10 +34,10 @@ export default function PinGate({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen grid place-items-center px-6">
       <form onSubmit={submit} className="w-full max-w-sm text-center">
-        <div className="display text-[3rem] leading-none tracking-[-0.025em] text-burgundy">
+        <div className="display text-[2.25rem] md:text-[2.75rem] lg:text-[3.5rem] leading-none tracking-[-0.025em] text-burgundy">
           The Broken<span className="text-forest">.</span>Spine
         </div>
-        <p className="mt-3 text-sepia italic">A library of one.</p>
+        <p className="mt-3 text-sepia italic font-display text-sm md:text-base">A library of one.</p>
         <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.2em] text-sepia-light">press to enter</p>
         <input
           autoFocus
@@ -46,14 +46,14 @@ export default function PinGate({ children }: { children: ReactNode }) {
           maxLength={6}
           value={pin}
           onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
-          className="mt-8 w-full rounded-md border border-line bg-paper-light px-4 py-3 text-center font-mono text-2xl tracking-[0.4em] text-ink outline-none focus:border-burgundy"
+          className="mt-7 w-full rounded-lg border border-line bg-paper-light px-4 py-3.5 text-center font-mono text-[22px] tracking-[0.4em] text-ink outline-none focus:border-burgundy"
           aria-label="PIN"
         />
         {error && <p className="mt-3 text-sm text-burgundy">{error}</p>}
         <button
           type="submit"
           disabled={busy || pin.length < 4}
-          className="mt-6 w-full rounded-md bg-burgundy px-4 py-3 text-sm font-semibold text-paper-light disabled:opacity-50"
+          className="mt-4 w-full rounded-lg bg-burgundy px-4 py-3 text-[13px] font-semibold text-paper-light disabled:opacity-50"
         >
           {busy ? 'Checking…' : 'Open'}
         </button>

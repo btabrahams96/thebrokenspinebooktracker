@@ -41,6 +41,14 @@ export default function Stats() {
     return arr;
   })();
 
+  const avgRating = (() => {
+    if (!items) return null;
+    const rated = items.filter((i) => typeof i.rating === 'number') as Array<Item & { rating: number }>;
+    if (rated.length === 0) return null;
+    const sum = rated.reduce((acc, i) => acc + i.rating, 0);
+    return { value: sum / rated.length, count: rated.length };
+  })();
+
   return (
     <Page>
       <PageHeader eyebrow="§ 04" title="Stats" subtitle="A quiet count of what you've read." />
@@ -78,9 +86,8 @@ export default function Stats() {
             </div>
           </div>
 
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-3 lg:gap-4">
             <Card label="Total" big={stats.total} sub="items in your library" />
-            <Card label={`Finished in ${stats.year}`} big={stats.finishedThisYear} sub="books closed" />
             <Card
               label="By type"
               rows={[
@@ -88,6 +95,12 @@ export default function Stats() {
                 ['Manga', stats.byType.manga ?? 0],
                 ['Comics', stats.byType.comic ?? 0]
               ]}
+            />
+            <Card
+              label="Avg rating"
+              big={avgRating ? Number(avgRating.value.toFixed(1)) : 0}
+              sub={avgRating ? `across ${avgRating.count} rated` : 'no ratings yet'}
+              className="hidden lg:block"
             />
           </div>
         </>
@@ -100,19 +113,21 @@ function Card({
   label,
   big,
   sub,
-  rows
+  rows,
+  className
 }: {
   label: string;
   big?: number;
   sub?: string;
   rows?: [string, number][];
+  className?: string;
 }) {
   return (
-    <div className="rounded-2xl border border-line bg-paper-light p-6">
-      <p className="text-xs uppercase tracking-widest text-sepia">{label}</p>
+    <div className={`rounded-2xl border border-line bg-paper-light p-5 ${className ?? ''}`}>
+      <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-sepia">{label}</p>
       {big !== undefined && (
         <>
-          <p className="display mt-2 text-5xl text-ink">{big}</p>
+          <p className="display mt-2 text-4xl tracking-tight text-ink">{big}</p>
           {sub && <p className="mt-1 text-sm italic text-sepia">{sub}</p>}
         </>
       )}
