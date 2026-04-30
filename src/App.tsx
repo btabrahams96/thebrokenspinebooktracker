@@ -19,7 +19,7 @@ export default function App() {
         <PinGate>
           <ToastProvider>
             <div className="min-h-full flex flex-col md:flex-row">
-              <main className="flex-1 pb-24 md:pb-0 md:pl-[72px] lg:pl-64">
+              <main className="flex-1 pb-16 md:pb-0 md:pl-16 lg:pl-[220px]">
                 <RouteTransition>
                   <Routes>
                     <Route path="/" element={<Navigate to="/library" replace />} />

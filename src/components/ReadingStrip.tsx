@@ -1,40 +1,38 @@
 import { Link } from 'react-router-dom';
 import type { Item } from '../types';
 import CoverPlaceholder from './CoverPlaceholder';
+import { STATUS_CLASSES } from '../lib/status';
 
 export default function ReadingStrip({ items }: { items: Item[] }) {
   if (items.length === 0) return null;
   return (
-    <section className="mb-8" aria-label="Currently reading">
-      <p className="font-mono text-xs uppercase tracking-widest text-sepia mb-3">Reading now</p>
-      <div className="relative">
-        <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 -mx-2 px-2 scrollbar-thin">
-          {items.map((it) => (
-            <Link
-              key={it.id}
-              to={`/item/${it.id}`}
-              className="snap-start shrink-0 group relative block overflow-hidden rounded-md bg-paper-deep shadow-sm h-[200px] md:h-[240px] aspect-[2/3]"
-            >
-              {it.cover_url ? (
-                <img
-                  src={it.cover_url}
-                  alt=""
-                  loading="lazy"
-                  className="absolute inset-0 h-full w-full object-cover transition-transform group-hover:scale-[1.02]"
-                />
-              ) : (
-                <CoverPlaceholder item={it} className="absolute inset-0 rounded-md" />
-              )}
-              <div className="absolute inset-x-0 bottom-0 bg-ink/65 px-2 py-1.5">
-                <p className="line-clamp-1 text-[11px] font-medium text-paper-light">{it.title}</p>
-                {it.creator && (
-                  <p className="line-clamp-1 text-[10px] italic text-paper-light/75">{it.creator}</p>
-                )}
-              </div>
-            </Link>
-          ))}
-        </div>
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-paper to-transparent" />
+    <section className="mt-5 mb-2" aria-label="Currently reading">
+      <div className="mb-2 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-sepia">
+        <span className="h-1.5 w-1.5 rounded-full bg-forest shadow-[0_0_0_4px_rgba(45,74,62,0.15)]" />
+        Reading now · {items.length}
+      </div>
+      <div className="flex gap-2.5 overflow-x-auto snap-x snap-mandatory pb-1 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
+        {items.map((it) => (
+          <Link
+            key={it.id}
+            to={`/item/${it.id}`}
+            className="snap-start flex-none w-[110px] md:w-[130px] aspect-[2/3] relative overflow-hidden rounded-lg shadow-[0_6px_16px_-8px_rgba(26,20,16,0.3)]"
+          >
+            {it.cover_url ? (
+              <img
+                src={it.cover_url}
+                alt=""
+                loading="lazy"
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+            ) : (
+              <CoverPlaceholder item={it} size="md" />
+            )}
+            <span
+              className={`absolute right-1.5 top-1.5 h-2 w-2 rounded-full ring-2 ring-ink/20 ${STATUS_CLASSES.reading.dot}`}
+            />
+          </Link>
+        ))}
       </div>
     </section>
   );

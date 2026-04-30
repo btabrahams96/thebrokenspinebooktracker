@@ -34,9 +34,11 @@ export default function PinGate({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen grid place-items-center px-6">
       <form onSubmit={submit} className="w-full max-w-sm text-center">
-        <div className="display text-5xl text-burgundy">The Broken<span className="text-forest">.</span>Spine</div>
-        <p className="mt-3 text-sepia italic">A library of one. Enter your PIN.</p>
-        <p className="mt-1 font-mono text-[11px] uppercase tracking-widest text-sepia-light">press to enter</p>
+        <div className="display text-[3rem] leading-none tracking-[-0.025em] text-burgundy">
+          The Broken<span className="text-forest">.</span>Spine
+        </div>
+        <p className="mt-3 text-sepia italic">A library of one.</p>
+        <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.2em] text-sepia-light">press to enter</p>
         <input
           autoFocus
           inputMode="numeric"

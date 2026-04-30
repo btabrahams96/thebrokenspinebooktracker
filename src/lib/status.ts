@@ -10,6 +10,10 @@ export const STATUS_LABEL: Record<ItemStatus, string> = {
 
 export const STATUS_ORDER: ItemStatus[] = ['reading', 'read', 'owned', 'wishlist', 'dnf'];
 
+// Type filters get burgundy regardless — they're not statuses.
+export const TYPE_FILTER_ACTIVE = 'bg-burgundy text-paper-light border-burgundy';
+export const TYPE_FILTER_IDLE = 'bg-paper-deep text-ink border-line';
+
 export const STATUS_CLASSES: Record<
   ItemStatus,
   { dot: string; pillActive: string; pillIdle: string; text: string; bar: string }

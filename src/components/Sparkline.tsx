@@ -1,56 +1,36 @@
 type Props = {
   values: number[];
-  height?: number;
   className?: string;
 };
 
-const MONTHS = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
-
-export default function Sparkline({ values, height = 60, className }: Props) {
+export default function Sparkline({ values, className }: Props) {
+  if (values.length === 0) return null;
+  const w = 220;
+  const h = 40;
   const max = Math.max(1, ...values);
-  const w = 240;
-  const padX = 6;
-  const stepX = (w - padX * 2) / Math.max(1, values.length - 1);
-  const points = values
-    .map((v, i) => {
-      const x = padX + i * stepX;
-      const y = height - 8 - (v / max) * (height - 16);
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
-    })
-    .join(' ');
+  const step = w / Math.max(1, values.length - 1);
+  const pts = values.map((v, i) => `${(i * step).toFixed(1)},${(h - 8 - (v / max) * (h - 12)).toFixed(1)}`);
+  const line = `M ${pts.join(' L ')}`;
+  const area = `${line} L ${w},${h} L 0,${h} Z`;
+  const lastIdx = values.length - 1;
+  const lastX = lastIdx * step;
+  const lastY = h - 8 - (values[lastIdx] / max) * (h - 12);
   return (
     <svg
-      viewBox={`0 0 ${w} ${height}`}
-      className={['w-full text-forest', className ?? ''].join(' ')}
+      viewBox={`0 0 ${w} ${h}`}
       preserveAspectRatio="none"
+      className={['w-full text-forest', className ?? ''].join(' ')}
     >
-      <polyline
-        points={points}
+      <path d={area} fill="rgba(45, 74, 62, 0.08)" />
+      <path
+        d={line}
         fill="none"
         stroke="currentColor"
         strokeWidth={1.5}
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      {values.map((v, i) => {
-        const x = padX + i * stepX;
-        const y = height - 8 - (v / max) * (height - 16);
-        return (
-          <g key={i}>
-            <circle cx={x} cy={y} r={1.5} fill="currentColor" />
-            <text
-              x={x}
-              y={height - 1}
-              textAnchor="middle"
-              fontSize="7"
-              fontFamily="JetBrains Mono, monospace"
-              fill="rgba(26,20,16,0.45)"
-            >
-              {MONTHS[i]}
-            </text>
-          </g>
-        );
-      })}
+      <circle cx={lastX} cy={lastY} r={2.5} fill="currentColor" />
     </svg>
   );
 }

@@ -11,7 +11,7 @@ import { GridSkeleton } from '../components/Skeleton';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useItems } from '../hooks/useItems';
 import type { Item, ItemStatus, ItemType } from '../types';
-import { STATUS_CLASSES } from '../lib/status';
+import { STATUS_CLASSES, TYPE_FILTER_ACTIVE, TYPE_FILTER_IDLE } from '../lib/status';
 
 type SortKey = 'recent' | 'title' | 'rating' | 'finished';
 const SORTS: { value: SortKey; label: string }[] = [
@@ -238,7 +238,7 @@ function TypeChip({
     <button
       onClick={onClick}
       className={`rounded-full px-3 py-1 text-xs font-medium border transition-colors ${
-        active ? 'bg-burgundy text-paper-light border-burgundy' : 'bg-paper-deep text-ink border-line'
+        active ? TYPE_FILTER_ACTIVE : TYPE_FILTER_IDLE
       }`}
     >
       {children}

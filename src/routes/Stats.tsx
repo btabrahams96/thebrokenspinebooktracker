@@ -66,8 +66,12 @@ export default function Stats() {
               <p className="text-xs uppercase tracking-widest text-sepia mb-2">
                 Finished by month · {stats.year}
               </p>
+              <div className="flex items-baseline gap-2">
+                <div className="display text-3xl tracking-tight">{stats.finishedThisYear}</div>
+                <div className="text-xs italic text-sepia">books closed</div>
+              </div>
               {monthly ? (
-                <Sparkline values={monthly} />
+                <Sparkline values={monthly} className="mt-2 h-9" />
               ) : (
                 <LineSkeleton width="w-full" />
               )}

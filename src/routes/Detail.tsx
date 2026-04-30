@@ -34,7 +34,6 @@ export default function Detail() {
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load.'));
   }, [id]);
 
-  // Optimistic patch with revert on failure.
   const applyPatch = async <K extends keyof Item>(patch: Pick<Item, K>) => {
     if (!item || !id) return;
     const previous = item;
@@ -55,17 +54,13 @@ export default function Detail() {
       const r = await api.patchItem(id, { notes: next || undefined });
       setItem(r.item);
       setNoteState('saved');
-      setTimeout(
-        () => setNoteState((s) => (s === 'saved' ? 'idle' : s)),
-        1500
-      );
+      setTimeout(() => setNoteState((s) => (s === 'saved' ? 'idle' : s)), 1500);
     } catch {
       setNoteState('idle');
       toast.show('Couldn\'t save notes. Try again.', 'error');
     }
   }, 800);
 
-  // Force-flush any pending notes save when leaving.
   useEffect(() => () => saveNotes.flush(), [saveNotes]);
 
   if (error)
@@ -89,111 +84,105 @@ export default function Detail() {
     navigate(item.status === 'wishlist' ? '/wishlist' : '/library', { replace: true });
   };
 
-  const cover = item.cover_url ? (
-    <img
-      src={item.cover_url}
-      alt=""
-      className="w-40 md:w-[200px] lg:w-[280px] rounded-md object-cover shadow-md self-center md:self-start"
-      style={{ aspectRatio: '2/3' }}
-    />
-  ) : (
-    <CoverPlaceholder
-      item={item}
-      className="w-40 md:w-[200px] lg:w-[280px] rounded-md self-center md:self-start"
-      textClass="text-base lg:text-lg"
-    />
+  const cover = (
+    <div className="relative aspect-[2/3] w-40 mx-auto md:w-full md:mx-0 rounded-lg overflow-hidden shadow-[0_12px_30px_-12px_rgba(26,20,16,0.35)]">
+      {item.cover_url ? (
+        <img src={item.cover_url} alt="" className="absolute inset-0 h-full w-full object-cover" />
+      ) : (
+        <CoverPlaceholder item={item} size="lg" />
+      )}
+    </div>
   );
 
   const meta = (
-    <dl className="mt-6 grid grid-cols-2 gap-y-2 font-mono text-xs text-sepia">
-      <dt>Type</dt><dd className="text-ink">{item.type}</dd>
-      {item.isbn && (<><dt>ISBN</dt><dd className="text-ink">{item.isbn}</dd></>)}
-      {item.series && (<><dt>Series</dt><dd className="text-ink">{item.series}{item.volume ? ` · v${item.volume}` : ''}</dd></>)}
-      <dt>Added</dt><dd className="text-ink">{formatShortDate(item.date_added)}</dd>
-      {item.date_finished && (<><dt>Finished</dt><dd className="text-ink">{formatShortDate(item.date_finished)}</dd></>)}
-      {item.source && (<><dt>Source</dt><dd className="text-ink">{item.source.replace('_', ' ')}</dd></>)}
+    <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 font-mono text-[10px]">
+      <dt className="text-sepia">Type</dt><dd className="text-ink">{item.type}</dd>
+      {item.isbn && (<><dt className="text-sepia">ISBN</dt><dd className="text-ink">{item.isbn}</dd></>)}
+      {item.series && (
+        <>
+          <dt className="text-sepia">Series</dt>
+          <dd className="text-ink">{item.series}{item.volume ? ` · v${item.volume}` : ''}</dd>
+        </>
+      )}
+      <dt className="text-sepia">Added</dt><dd className="text-ink">{formatShortDate(item.date_added)}</dd>
+      {item.date_finished && (
+        <>
+          <dt className="text-sepia">Finished</dt>
+          <dd className="text-ink">{formatShortDate(item.date_finished)}</dd>
+        </>
+      )}
+      {item.source && (
+        <>
+          <dt className="text-sepia">Source</dt>
+          <dd className="text-ink">{item.source.replace('_', ' ')}</dd>
+        </>
+      )}
     </dl>
-  );
-
-  const actions = (
-    <>
-      <div>
-        <p className="text-xs uppercase tracking-widest text-sepia mb-2">Status</p>
-        <div className="flex flex-wrap gap-2">
-          {STATUS_ORDER.map((s) => {
-            const cls = STATUS_CLASSES[s];
-            const active = item.status === s;
-            return (
-              <button
-                key={s}
-                onClick={() => void applyPatch({ status: s })}
-                disabled={active}
-                className={`rounded-full px-3 py-1 text-xs font-medium border transition-colors ${
-                  active ? cls.pillActive : cls.pillIdle
-                }`}
-              >
-                {STATUS_LABEL[s]}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      <div className="mt-5">
-        <p className="text-xs uppercase tracking-widest text-sepia mb-2">Rating</p>
-        <div className="flex gap-1">
-          {[1, 2, 3, 4, 5].map((n) => {
-            const filled = !!item.rating && n <= item.rating;
-            return (
-              <button
-                key={n}
-                onClick={() =>
-                  void applyPatch({
-                    rating: (item.rating === n ? null : n) as 1 | 2 | 3 | 4 | 5
-                  })
-                }
-                className={filled ? 'text-burgundy' : 'text-sepia-light hover:text-sepia'}
-                aria-label={`${n} stars`}
-              >
-                <StarIcon className="h-6 w-6" filled={filled} />
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      <button
-        onClick={remove}
-        className="mt-8 text-xs italic text-sepia hover:text-burgundy"
-      >
-        Remove from library
-      </button>
-    </>
   );
 
   return (
     <Page>
       <BackLink />
 
-      <div className="mt-6 grid gap-6 md:grid-cols-[200px,1fr] lg:grid-cols-[280px,1fr] xl:grid-cols-[280px,1fr,300px] xl:gap-10">
-        <div className="flex flex-col gap-4 md:gap-5">
+      <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-[160px_1fr] md:gap-8 lg:grid-cols-[200px_1fr] lg:gap-10">
+        <div>
           {cover}
-          <div className="hidden md:block xl:hidden">{meta}</div>
+          <div className="hidden lg:block mt-5">{meta}</div>
         </div>
 
-        <div className="flex-1 min-w-0">
-          <h1 className="display text-3xl md:text-4xl lg:text-5xl text-ink leading-[1.05]">
-            {item.title}
-          </h1>
+        <div className="min-w-0">
+          <h1 className="display text-3xl md:text-4xl text-ink leading-[1.05]">{item.title}</h1>
           {item.creator && <p className="mt-1 text-sepia italic">{item.creator}</p>}
 
-          <div className="xl:hidden mt-6">{actions}</div>
+          <div className="mt-4 flex flex-wrap gap-1.5">
+            {STATUS_ORDER.map((s) => {
+              const cls = STATUS_CLASSES[s];
+              const active = item.status === s;
+              return (
+                <button
+                  key={s}
+                  onClick={() => void applyPatch({ status: s })}
+                  disabled={active}
+                  className={`rounded-full px-3 py-1 text-xs font-medium border transition-colors ${
+                    active ? cls.pillActive : cls.pillIdle
+                  }`}
+                >
+                  {STATUS_LABEL[s]}
+                </button>
+              );
+            })}
+          </div>
 
-          <div className="mt-6">
-            <div className="flex items-baseline justify-between mb-2">
-              <p className="text-xs uppercase tracking-widest text-sepia">Notes</p>
+          <div className="mt-5">
+            <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-sepia mb-1.5">
+              Rating
+            </div>
+            <div className="flex gap-1">
+              {[1, 2, 3, 4, 5].map((n) => {
+                const filled = !!item.rating && n <= item.rating;
+                return (
+                  <button
+                    key={n}
+                    onClick={() =>
+                      void applyPatch({
+                        rating: (item.rating === n ? null : n) as 1 | 2 | 3 | 4 | 5
+                      })
+                    }
+                    className={filled ? 'text-burgundy' : 'text-sepia-light hover:text-sepia'}
+                    aria-label={`${n} stars`}
+                  >
+                    <StarIcon className="h-6 w-6" filled={filled} />
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="mt-5">
+            <div className="flex items-center justify-between mb-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-sepia">
+              <span>Notes</span>
               {noteState !== 'idle' && (
-                <span className="text-xs italic text-sepia">
+                <span className="display italic normal-case tracking-normal text-forest text-[11px]">
                   {noteState === 'saving' ? 'Saving…' : 'Saved'}
                 </span>
               )}
@@ -210,17 +199,16 @@ export default function Detail() {
             />
           </div>
 
-          <div className="md:hidden">{meta}</div>
+          <div className="mt-6 lg:hidden">{meta}</div>
+
+          <button
+            onClick={remove}
+            className="mt-6 text-xs italic text-sepia hover:text-burgundy"
+          >
+            Remove from library
+          </button>
         </div>
-
-        <aside className="hidden xl:block">
-          <div className="sticky top-8 rounded-2xl border border-line bg-paper-light p-5">
-            {actions}
-            <div className="mt-6 border-t border-line pt-4">{meta}</div>
-          </div>
-        </aside>
       </div>
-
     </Page>
   );
 }

@@ -1,28 +1,20 @@
-import type { Item, ItemType } from '../types';
+import type { Item } from '../types';
 
-const GRADIENTS: Record<ItemType, string> = {
-  book: 'bg-gradient-to-br from-burgundy to-burgundy-deep',
-  manga: 'bg-gradient-to-br from-forest to-forest-deep',
-  comic: 'bg-gradient-to-br from-ink to-sepia'
+const GRADIENT: Record<Item['type'], string> = {
+  book: 'from-burgundy to-burgundy-deep',
+  manga: 'from-forest to-forest-deep',
+  comic: 'from-ink to-sepia'
 };
 
-type Props = {
-  item: Pick<Item, 'title' | 'type'>;
-  className?: string;
-  textClass?: string;
-};
+type Props = { item: Pick<Item, 'title' | 'type'>; size?: 'sm' | 'md' | 'lg' };
 
-export default function CoverPlaceholder({ item, className, textClass }: Props) {
+export default function CoverPlaceholder({ item, size = 'sm' }: Props) {
+  const text = size === 'lg' ? 'text-base' : size === 'md' ? 'text-sm' : 'text-xs';
   return (
     <div
-      className={[
-        'grid place-items-center p-3 text-center',
-        GRADIENTS[item.type],
-        'border border-paper-light/20',
-        className ?? ''
-      ].join(' ')}
+      className={`absolute inset-0 grid place-items-center bg-gradient-to-br ${GRADIENT[item.type]} p-3 text-center`}
     >
-      <span className={['display leading-tight text-paper-light', textClass ?? 'text-sm'].join(' ')}>
+      <span className={`display italic text-paper-light leading-tight ${text}`}>
         {item.title}
       </span>
     </div>

@@ -62,16 +62,14 @@ export default function Scanner({ onDetected, paused }: Props) {
 
       {/* Corner brackets */}
       <div className="pointer-events-none absolute inset-[15%_12%]">
-        <Corner pos="top-0 left-0" sides="border-t-2 border-l-2" />
-        <Corner pos="top-0 right-0" sides="border-t-2 border-r-2" />
-        <Corner pos="bottom-0 left-0" sides="border-b-2 border-l-2" />
-        <Corner pos="bottom-0 right-0" sides="border-b-2 border-r-2" />
-        {!starting && !error && (
-          <span className="absolute inset-0 grid place-items-center">
-            <span className="h-1.5 w-1.5 rounded-full bg-burgundy-light animate-pulse-dot" />
-          </span>
-        )}
+        <Corner pos="top-0 left-0" sides="border-t-2 border-l-2 rounded-tl-sm" />
+        <Corner pos="top-0 right-0" sides="border-t-2 border-r-2 rounded-tr-sm" />
+        <Corner pos="bottom-0 left-0" sides="border-b-2 border-l-2 rounded-bl-sm" />
+        <Corner pos="bottom-0 right-0" sides="border-b-2 border-r-2 rounded-br-sm" />
       </div>
+      {!starting && !error && (
+        <span className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-burgundy-light animate-pulse-ring" />
+      )}
 
       {(starting || error) && (
         <div className="absolute inset-0 grid place-items-center bg-ink/80 p-6 text-center">

@@ -18,19 +18,16 @@ export default function ItemCard({ item }: { item: Item }) {
           className="absolute inset-0 h-full w-full object-cover transition-transform group-hover:scale-[1.02]"
         />
       ) : (
-        <CoverPlaceholder
-          item={item}
-          className="absolute inset-0 rounded-md"
-        />
+        <CoverPlaceholder item={item} size="sm" />
       )}
       <span
-        className={`absolute right-1.5 top-1.5 h-2.5 w-2.5 rounded-full ring-1 ring-paper-light/40 ${status.dot}`}
+        className={`absolute right-1.5 top-1.5 h-2 w-2 rounded-full ring-2 ring-ink/20 ${status.dot}`}
         title={STATUS_LABEL[item.status]}
       />
-      <div className="absolute inset-x-0 bottom-0 bg-ink/65 px-2 py-1.5">
-        <p className="line-clamp-1 text-[11px] font-medium text-paper-light">{item.title}</p>
+      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/85 via-ink/55 to-transparent px-1.5 pt-4 pb-1.5">
+        <p className="line-clamp-1 text-[10px] font-medium text-paper-light leading-tight">{item.title}</p>
         {item.creator && (
-          <p className="line-clamp-1 text-[10px] italic text-paper-light/75">{item.creator}</p>
+          <p className="line-clamp-1 text-[9px] italic text-paper-light/70 mt-0.5">{item.creator}</p>
         )}
       </div>
     </Link>
