@@ -8,6 +8,7 @@ import EmptyState from '../components/EmptyState';
 import ReadingStrip from '../components/ReadingStrip';
 import SearchBar, { type SearchBarHandle } from '../components/SearchBar';
 import { GridSkeleton } from '../components/Skeleton';
+import DensitySlider from '../components/DensitySlider';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useItems } from '../hooks/useItems';
 import type { Item, ItemStatus, ItemType } from '../types';
@@ -127,8 +128,8 @@ export default function Library() {
       <PageHeader eyebrow="§ 01" title="Library" subtitle="Everything you own." right={counter} />
 
       {/* Search + sort row, immediately under the header. */}
-      <div className="mt-4 flex items-center gap-2">
-        <div className="flex-1 lg:max-w-md">
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <div className="flex-1 min-w-[180px] lg:max-w-md">
           <SearchBar
             ref={searchRef}
             placeholder="Search your library"
@@ -149,6 +150,7 @@ export default function Library() {
             </option>
           ))}
         </select>
+        <DensitySlider className="shrink-0" />
       </div>
 
       {/* Filter chips. Two rows on mobile (types, then statuses);

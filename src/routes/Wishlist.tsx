@@ -6,6 +6,7 @@ import EmptyState from '../components/EmptyState';
 import { GridSkeleton } from '../components/Skeleton';
 import { useItems } from '../hooks/useItems';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import DensitySlider from '../components/DensitySlider';
 
 export default function Wishlist() {
   useDocumentTitle('The Broken Spine — Wishlist');
@@ -24,7 +25,13 @@ export default function Wishlist() {
         right={counter}
       />
 
-      <div className="mt-8">
+      {items && items.length > 0 && (
+        <div className="mt-4 flex justify-end">
+          <DensitySlider />
+        </div>
+      )}
+
+      <div className="mt-6">
         {error && <p className="text-burgundy">{error}</p>}
         {!items && !error && <GridSkeleton count={6} />}
         {items && items.length === 0 && (
